@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Seni Seviyorum ❤️</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css"> </head>
+<body>
+
+  <audio id="backgroundMusic" loop>
+    <source src="assets/song.mp3" type="audio/mp3"> 
+    Tarayıcınız ses dosyasını desteklemiyor.
+  </audio>
+
+  <div class="spinner" id="spinner">❤️</div>
+
+  <button class="menu-btn" id="menuBtn"><i class="fas fa-heart"></i></button>
+  <div class="overlay" id="overlay"></div>
+
+  <div class="sidebar" id="sidebar">
+    <ul>
+      <li><button><i class="fas fa-image"></i> Fotoğraflar</button></li>
+      <li><button><i class="fas fa-memory"></i> Anılarımız</button></li>
+      <li><button><i class="fas fa-star"></i> Favori Anlar</button></li>
+      <li><button><i class="fas fa-gift"></i> Sürprizler</button></li>
+      <li><button id="musicBtn"><i class="fas fa-volume-up"></i> Müzik: <span id="musicState">Açık</span></button></li> 
+      <li><button><i class="fas fa-envelope"></i> Mektuplar</button></li>
+      <li><button id="settingsBtn"><i class="fas fa-cog"></i> Ayarlar</button></li> </ul>
+  </div>
+
+  <div class="container" id="main">
+    <div class="counter">
+      <h2>Beraberliğimiz</h2>
+      <div class="time" id="timer">
+        <div><span id="days">0</span>Gün</div>
+        <div><span id="hours">0</span>Saat</div>
+        <div><span id="mins">0</span>Dakika</div>
+        <div><span id="secs">0</span>Saniye</div>
+      </div>
+    </div>
+
+    <div class="compliment" id="compliment">Yükleniyor...</div>
+
+    <div class="calendar">
+      <div class="calendar-header" id="monthYear"></div>
+      <div class="calendar-grid" id="calendarGrid">
+        <div class="day header">Pzt</div><div class="day header">Sal</div><div class="day header">Çar</div>
+        <div class="day header">Per</div><div class="day header">Cum</div><div class="day header">Cmt</div><div class="day header">Paz</div>
+      </div>
+    </div>
+
+    <div class="message">
+      <textarea placeholder="Bana mesaj at... ❤️" id="messageText"></textarea>
+      <button id="sendMsg">Gönder <i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+  <div class="settings-modal" id="settingsModal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeSettings">&times;</span>
+      <h3>Ayarlar ⚙️</h3>
+      <div class="setting-item">
+        <label for="themeToggle">Karanlık Tema</label>
+        <input type="checkbox" id="themeToggle">
+      </div>
+      <div class="setting-item">
+        <label for="heartSpeed">Kalp Yağmuru Hızı (ms)</label>
+        <input type="range" id="heartSpeed" min="100" max="1000" step="50" value="500">
+        <span id="heartSpeedValue">500</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script src="telegram.js"></script>
+</body>
+</html>
