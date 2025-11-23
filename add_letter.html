@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YENİ MEKTUP YAZ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f7f7f7;
+            color: #2c1a1d;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(255, 20, 147, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border-top: 5px solid #ff1493;
+        }
+        h1 {
+            color: #ff1493;
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            resize: vertical;
+        }
+        textarea {
+            min-height: 120px;
+        }
+        button {
+            background-color: #ff1493;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #cc0077;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gizli Mektup Ekle 🔑</h1>
+        <div class="form-group">
+            <label for="letterTitle">Başlık</label>
+            <input type="text" id="letterTitle" required>
+        </div>
+        <div class="form-group">
+            <label for="letterContent">İçerik</label>
+            <textarea id="letterContent" required></textarea>
+        </div>
+        <button id="saveLetterBtn">Mektubu Kaydet</button>
+    </div>
+
+    <script>
+        document.getElementById('saveLetterBtn').addEventListener('click', function() {
+            const title = document.getElementById('letterTitle').value.trim();
+            const content = document.getElementById('letterContent').value.trim();
+            const date = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            if (!title || !content) {
+                alert('Başlık ve içerik boş olamaz, kanka.');
+                return;
+            }
+
+            // Mektup kaydetme mantığı
+            let letters = JSON.parse(localStorage.getItem('myLoveLetters')) || [];
+            
+            const newLetter = {
+                title: title,
+                content: content,
+                date: date,
+                timestamp: Date.now() // Silme için benzersiz kimlik (ID)
+            };
+
+            // En yeniyi en başa koy
+            letters.unshift(newLetter); 
+
+            localStorage.setItem('myLoveLetters', JSON.stringify(letters));
+
+            alert(`Mektup kaydedildi: "${title}"`);
+            
+            // Formu temizle
+            document.getElementById('letterTitle').value = '';
+            document.getElementById('letterContent').value = '';
+        });
+    </script>
+</body>
+</html>

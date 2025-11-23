@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aşk Mektupları</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css"> 
+    <style>
+        /* Ana sitenin stil değişkenlerini kullanır */
+        .letters-container {
+            padding: 20px 10px; 
+            max-width: 700px;
+            margin: 0 auto;
+            padding-top: 60px;
+        }
+        
+        .letter-card {
+            background-color: var(--light); 
+            color: var(--dark);
+            padding: 15px; 
+            margin-bottom: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border: 2px solid var(--primary);
+            position: relative;
+        }
+        .letter-card h2 { font-size: 1.3rem; color: var(--primary); margin-bottom: 5px; }
+        .letter-card p { white-space: pre-wrap; line-height: 1.6; margin-top: 10px; font-size: 0.9rem; }
+        .letter-date { font-size: 0.8rem; color: #888; margin-bottom: 10px; display: block; }
+        .no-letters { text-align: center; color: var(--primary); font-size: 1.2rem; margin-top: 50px; }
+        body.dark-mode .letter-card { background-color: #2a2a2a; }
+
+        /* Sil butonu kaldırıldığı için burası boş */
+
+    </style>
+</head>
+<body class="dark-mode"> 
+    <a href="index.html" style="position: fixed; top: 15px; left: 15px; font-size: 1.5rem; color: var(--primary); z-index: 100;"><i class="fas fa-arrow-left"></i></a>
+
+    <div class="letters-container" id="lettersContainer">
+        <h1 style="text-align: center; color: var(--primary); margin-bottom: 20px; font-family: 'Playfair Display', serif;">Tüm Aşk Mektupların ❤️</h1>
+    </div>
+
+    <script>
+        // Tema ayarını ana sayfadan çekmek için kontrol
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+
+        // --- Mektup Yönetimi Fonksiyonları ---
+
+        function getLetters() {
+            try {
+                // Mektupları alırken hata oluşsa bile boş dizi döndür
+                return JSON.parse(localStorage.getItem('myLoveLetters')) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+        
+        // --- Mektupları Yükleme ---
+
+        function loadLetters() {
+            const container = document.getElementById('lettersContainer');
+            // Mektup listesini temizle
+            let currentContent = container.querySelectorAll('.letter-card, .no-letters');
+            currentContent.forEach(el => el.remove());
+
+            const letters = getLetters();
+
+            if (letters.length === 0) {
+                const noLetters = document.createElement('div');
+                noLetters.className = 'no-letters';
+                noLetters.textContent = 'Henüz sana yazılmış bir mektup yok... Ama yakında olacak!';
+                container.appendChild(noLetters);
+                return;
+            }
+
+            // Mektupları göster
+            letters.forEach((letter) => {
+                const card = document.createElement('div');
+                card.className = 'letter-card';
+                
+                // SİLME BUTONU KALDIRILDI
+                card.innerHTML = `
+                    <div class="letter-date">${letter.date}</div>
+                    <h2>${letter.title}</h2>
+                    <p>${letter.content}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.onload = loadLetters;
+    </script>
+</body>
+</html>

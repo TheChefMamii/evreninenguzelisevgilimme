@@ -6,7 +6,8 @@
   <title>Seni Seviyorum ❤️</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css"> </head>
+  <link rel="stylesheet" href="style.css"> 
+</head>
 <body>
 
   <audio id="backgroundMusic" loop>
@@ -25,15 +26,15 @@
       <li><button><i class="fas fa-memory"></i> Anılarımız</button></li>
       <li><button><i class="fas fa-star"></i> Favori Anlar</button></li>
       <li><button><i class="fas fa-gift"></i> Sürprizler</button></li>
-      <li><button id="musicBtn"><i class="fas fa-volume-up"></i> Müzik: <span id="musicState">Açık</span></button></li> 
-      <li><button><i class="fas fa-envelope"></i> Mektuplar</button></li>
-      <li><button id="settingsBtn"><i class="fas fa-cog"></i> Ayarlar</button></li> </ul>
+      <li><a href="letters.html"><button><i class="fas fa-envelope"></i> Mektuplar</button></a></li>
+      <li><button id="settingsBtn"><i class="fas fa-cog"></i> Ayarlar</button></li>
+    </ul>
   </div>
 
-  <div class="container" id="main">
+  <div class="container">
     <div class="counter">
-      <h2>Beraberliğimiz</h2>
-      <div class="time" id="timer">
+      <h2>Birlikte Geçen Zaman</h2>
+      <div class="time">
         <div><span id="days">0</span>Gün</div>
         <div><span id="hours">0</span>Saat</div>
         <div><span id="mins">0</span>Dakika</div>
@@ -44,7 +45,11 @@
     <div class="compliment" id="compliment">Yükleniyor...</div>
 
     <div class="calendar">
-      <div class="calendar-header" id="monthYear"></div>
+      <div class="calendar-header" id="monthYear">
+        <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+        <span id="currentMonthYear"></span>
+        <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+      </div>
       <div class="calendar-grid" id="calendarGrid">
         <div class="day header">Pzt</div><div class="day header">Sal</div><div class="day header">Çar</div>
         <div class="day header">Per</div><div class="day header">Cum</div><div class="day header">Cmt</div><div class="day header">Paz</div>
@@ -59,21 +64,53 @@
 
   <div class="settings-modal" id="settingsModal">
     <div class="modal-content">
-      <span class="close-btn" id="closeSettings">&times;</span>
-      <h3>Ayarlar ⚙️</h3>
-      <div class="setting-item">
-        <label for="themeToggle">Karanlık Tema</label>
-        <input type="checkbox" id="themeToggle">
+      <div class="modal-header">
+        <span>Ayarlar ⚙️</span>
+        <span class="close-btn" id="closeSettings">&times;</span>
       </div>
-      <div class="setting-item">
-        <label for="heartSpeed">Kalp Yağmuru Hızı (ms)</label>
-        <input type="range" id="heartSpeed" min="100" max="1000" step="50" value="500">
-        <span id="heartSpeedValue">500</span>
+
+      <div class="settings-body">
+        
+        <div class="setting-section">
+            <h4>Görünüm</h4>
+            
+            <div class="setting-item">
+                <label>Tema Seçimi</label>
+                <div id="themeOptions" class="theme-options">
+                    <button data-theme="default" class="theme-btn active">Pembe</button>
+                    <button data-theme="ocean-blue" class="theme-btn">Mavi</button>
+                    <button data-theme="sunrise-orange" class="theme-btn">Turuncu</button>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <label for="themeToggle">Karanlık Mod</label>
+                <label class="switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="setting-section">
+            <h4>Sistem</h4>
+            <div class="setting-item">
+                <label for="heartSpeed">Kalp Yağmuru Hızı (<span id="heartSpeedValue">500</span>ms)</label>
+                <input type="range" min="100" max="1000" value="500" step="50" id="heartSpeed">
+            </div>
+
+            <div class="setting-item">
+                <label for="musicBtn">Müzik Durumu (<span id="musicState">Açık/Kapalı</span>)</label>
+                <button id="musicToggleBtn" style="padding: 5px 10px; font-size: 0.9em; border: 1px solid var(--primary);" >Değiştir</button>
+            </div>
+        </div>
+        
       </div>
     </div>
   </div>
-
-  <script src="script.js"></script>
+  
   <script src="telegram.js"></script>
+  <script src="script.js"></script>
+
 </body>
 </html>
