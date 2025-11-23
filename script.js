@@ -1,283 +1,207 @@
-// script.js
+/* --- AYARLAR --- */
+const startDate = new Date("2025-05-30T00:00:00"); 
+const music = document.getElementById("bg-music");
+const musicToggle = document.getElementById("music-toggle");
+const BOT_TOKEN = '8387694074:AAHF30x-1NcmE0Gs4v2jWMpyJPDuwy0XCa4'; 
+const CHAT_ID = '6750266187';
 
-// Global Değişkenler
-const startDate = new Date('2023-05-10T00:00:00');
-const compliments = [
-  "Gözlerin yıldızlar gibi parlıyor ❤️",
-  "Seninle geçirdiğim her saniye mucize.",
-  "Gülüşün dünyayı aydınlatıyor.",
-  "Senin gibi biriyle tanışmak hayatımın en güzel olayı.",
-  "Kalbim seninle atıyor.",
-  "Her sabah seni düşünerek uyanıyorum.",
-  "Sen bir hazine gibisin.",
-  "Yanında kendimi evimde hissediyorum.",
-  "Seni sevmek en güzel bağımlılık.",
-  "Geleceğim sensin."
+/* --- TEMA LİSTESİ --- */
+const themes = [
+    { id: 0, name: "Soft Pink (Default)", primary: "#ff4b6e", bg: "linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%)" },
+    { id: 1, name: "Hot Pink", primary: "#ff0066", bg: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)" },
+    { id: 2, name: "Rose Gold", primary: "#b76e79", bg: "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)" },
+    { id: 3, name: "Ocean Blue", primary: "#00b4db", bg: "linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)" },
+    { id: 4, name: "Mint Love", primary: "#00b09b", bg: "linear-gradient(135deg, #d2ccc4 0%, #2f80ed 100%)" },
+    { id: 5, name: "Galaxy Purple", primary: "#8e2de2", bg: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)", text: "#333" },
+    { id: 6, name: "Sunset", primary: "#ff9966", bg: "linear-gradient(135deg, #f5af19 0%, #f12711 100%)" },
+    { id: 7, name: "Classic Red", primary: "#ff0000", bg: "linear-gradient(135deg, #ff9966 0%, #ff5e62 100%)" },
+    { id: 8, name: "Dark Mode", primary: "#bb86fc", bg: "#121212", text: "#ffffff", glass: "rgba(255,255,255,0.1)", nav: "#1f1f1f" },
+    { id: 9, name: "Event (Dynamic)", primary: "#d4af37", bg: "linear-gradient(to right, #bf953f, #fcf6ba)", isEvent: true }
 ];
 
-// ÖZEL GÜNLER LİSTESİ (Ay-Gün formatında: MM-DD)
-const SPECIAL_DATES = {
-    '12-14': 'DOĞUM GÜNÜ ❤️', 
-    '01-01': 'YILBAŞI 🥳',
-    '05-10': 'İLİŞKİ YILDÖNÜMÜ 💍' 
-};
-
-
-// DOM Elementleri
-const menuBtn = document.getElementById('menuBtn');
-const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('overlay');
-const calendarGrid = document.getElementById('calendarGrid');
-const currentMonthYearEl = document.getElementById('currentMonthYear');
-const prevMonthBtn = document.getElementById('prevMonth');
-const nextMonthBtn = document.getElementById('nextMonth');
-const complimentEl = document.getElementById('compliment');
-const settingsBtn = document.getElementById('settingsBtn');
-const settingsModal = document.getElementById('settingsModal');
-const closeSettings = document.getElementById('closeSettings');
-const themeToggle = document.getElementById('themeToggle');
-const themeOptions = document.getElementById('themeOptions'); 
-const heartSpeedRange = document.getElementById('heartSpeed');
-const heartSpeedValue = document.getElementById('heartSpeedValue');
-const musicToggleBtn = document.getElementById('musicToggleBtn'); // Yeni buton ID'si
-const musicState = document.getElementById('musicState');
-const backgroundMusic = document.getElementById('backgroundMusic');
-
-let heartInterval; 
-let currentDate = new Date(); 
-
-// --- Temel İşlevler ---
-
-// 1. Sayaç Güncelleme
-function updateTimer() {
-  const now = new Date();
-  const diff = now - startDate;
-  const days = Math.floor(diff / (1000*60*60*24));
-  const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-  const mins = Math.floor((diff % (1000*60*60)) / (1000*60));
-  const secs = Math.floor((diff % (1000*60)) / 1000);
-  document.getElementById('days').textContent = days;
-  document.getElementById('hours').textContent = hours;
-  document.getElementById('mins').textContent = mins;
-  document.getElementById('secs').textContent = secs;
-}
-
-// 2. Kalp Yağmuru (DÜZELTİLDİ: h.className = 'heart' EKLENDİ)
-function createHeart() {
-  const h = document.createElement('div');
-  h.className = 'heart'; 
-  h.innerHTML = '❤️';
-  h.style.left = Math.random() * 100 + 'vw';
-  h.style.animationDuration = Math.random() * 4 + 5 + 's';
-  h.style.fontSize = Math.random() * 0.8 + 1.2 + 'rem';
-  document.body.appendChild(h);
-  setTimeout(() => h.remove(), 10000);
-}
-
-function startHeartRain(speed) {
-  if (heartInterval) clearInterval(heartInterval);
-  heartInterval = setInterval(createHeart, speed);
-  localStorage.setItem('heartSpeed', speed);
-  heartSpeedValue.textContent = speed;
-}
-
-// 3. Tema Yönetimi
-function setTheme(themeName) {
-    document.body.className = document.body.className.replace(/\btheme-[a-z-]+\b/g, ''); 
+/* --- BAŞLANGIÇ --- */
+window.addEventListener("load", function() {
+    initClock();
+    initTheme();
+    getAntalyaWeather(); // Direkt Antalya hava durumu
     
-    if (themeName !== 'default') {
-        document.body.classList.add(`theme-${themeName}`);
+    setTimeout(function() {
+        document.getElementById("loading-screen").style.opacity = "0";
+        setTimeout(() => {
+            document.getElementById("loading-screen").style.display = "none";
+            document.getElementById("welcome-screen").classList.remove("hidden");
+            
+            setTimeout(() => {
+                const appContainer = document.getElementById("app-container");
+                document.getElementById("welcome-screen").style.opacity = "0";
+                setTimeout(() => {
+                    document.getElementById("welcome-screen").style.display = "none";
+                    appContainer.classList.remove("hidden"); 
+                    appContainer.style.display = "block";
+                }, 800); 
+            }, 2500); 
+        }, 800); 
+    }, 3000); 
+});
+
+/* --- SADECE ANTALYA HAVA DURUMU --- */
+function getAntalyaWeather() {
+    const wIcon = document.getElementById('w-icon');
+    const wTemp = document.getElementById('w-temp');
+
+    const lat = 36.8841;
+    const lon = 30.7056;
+    
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+        .then(response => response.json())
+        .then(data => {
+            const temp = Math.round(data.current_weather.temperature);
+            const code = data.current_weather.weathercode;
+            
+            if(code <= 3) wIcon.className = "fa-solid fa-sun";
+            else if(code > 3 && code < 50) wIcon.className = "fa-solid fa-cloud";
+            else if(code >= 50) wIcon.className = "fa-solid fa-cloud-rain";
+            
+            wTemp.innerText = `Antalya ${temp}°C`;
+        })
+        .catch(err => {
+            wTemp.innerText = "Antalya"; 
+        });
+}
+
+/* --- TEMA MOTORU --- */
+function initTheme() {
+    const themeGrid = document.querySelector(".theme-grid");
+    const today = new Date();
+    const month = today.getMonth() + 1;
+    const day = today.getDate();
+    let eventThemeId = null;
+
+    if(month === 10 && day === 31) eventThemeId = 6;
+    if(month === 2 && day === 14) eventThemeId = 1;
+    if((month === 12 && day === 31) || (month === 1 && day === 1)) eventThemeId = 9;
+
+    let savedTheme = localStorage.getItem("selectedTheme");
+    
+    if(eventThemeId !== null && !savedTheme) {
+        applyTheme(eventThemeId);
+    } else if(savedTheme) {
+        applyTheme(parseInt(savedTheme));
     }
-    
-    if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-    }
-    
-    localStorage.setItem('theme', themeName);
 
-    // Aktif butonu işaretle
-    document.querySelectorAll('.theme-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.theme === themeName) {
-            btn.classList.add('active');
+    themes.forEach(theme => {
+        const btn = document.createElement("div");
+        btn.classList.add("theme-btn");
+        
+        if(theme.bg.includes("linear-gradient")) {
+            btn.style.background = theme.bg;
+        } else {
+            btn.style.backgroundColor = theme.bg;
         }
+        
+        if(theme.isEvent) {
+            btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles" style="color:white; font-size:12px; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);"></i>';
+        }
+
+        btn.onclick = () => {
+            applyTheme(theme.id);
+            localStorage.setItem("selectedTheme", theme.id);
+        };
+        themeGrid.appendChild(btn);
     });
 }
 
-// 4. Müzik Yönetimi
-function toggleMusic() {
-  if (backgroundMusic.paused) {
-    backgroundMusic.play().then(() => {
-      localStorage.setItem('musicOn', 'true');
-      musicState.textContent = 'Açık';
-    }).catch(error => {
-      console.error("Müzik Oynatma Hatası:", error);
-      // Hata olsa bile görsel durumu güncelle
-      localStorage.setItem('musicOn', 'false');
-      musicState.textContent = 'Kapalı';
+function applyTheme(id) {
+    const theme = themes.find(t => t.id === id);
+    if(!theme) return;
+
+    const root = document.documentElement;
+    root.style.setProperty('--primary-color', theme.primary);
+    root.style.setProperty('--bg-gradient', theme.bg);
+    root.style.setProperty('--text-color', theme.text || '#333');
+    root.style.setProperty('--text-secondary', theme.text ? '#aaa' : '#777');
+    root.style.setProperty('--glass-bg', theme.glass || 'rgba(255, 255, 255, 0.6)');
+    root.style.setProperty('--nav-bg', theme.nav || 'white');
+
+    document.querySelectorAll(".theme-btn").forEach((btn, index) => {
+        if(index === id) btn.classList.add("active");
+        else btn.classList.remove("active");
     });
-  } else {
-    backgroundMusic.pause();
-    localStorage.setItem('musicOn', 'false');
-    musicState.textContent = 'Kapalı';
-  }
 }
 
-// 5. İltifat Göster
-function showCompliment() {
-  const randomIndex = Math.floor(Math.random() * compliments.length);
-  complimentEl.textContent = compliments[randomIndex];
+/* --- SAAT --- */
+function initClock() {
+    const clockEl = document.getElementById("live-clock");
+    setInterval(() => {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        clockEl.innerText = `${hours}:${minutes}`;
+    }, 1000);
 }
 
-// 6. Takvimi Oluşturma
-function renderCalendar(date) {
-  const year = date.getFullYear();
-  const month = date.getMonth(); 
-  const today = new Date();
+/* --- MENÜ İŞLEMLERİ --- */
+function toggleMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    if(sidebar.style.left === '0px') {
+        sidebar.style.left = '-80%';
+        overlay.style.display = 'none';
+        sidebar.classList.remove('active');
+    } else {
+        sidebar.style.left = '0px';
+        overlay.style.display = 'block';
+        sidebar.classList.add('active');
+    }
+}
+function openMsgModal() { toggleMenu(); document.getElementById('msg-modal').classList.remove('hidden'); }
+function closeMsgModal() { document.getElementById('msg-modal').classList.add('hidden'); }
 
-  const monthNames = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
-  currentMonthYearEl.textContent = `${monthNames[month]} ${year}`;
+// BİLGİ PENCERESİ İÇİN
+function openInfoModal() { toggleMenu(); document.getElementById('info-modal').classList.remove('hidden'); }
+function closeInfoModal() { document.getElementById('info-modal').classList.add('hidden'); }
 
-  const firstDayOfMonth = new Date(year, month, 1).getDay(); 
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  let existingDays = calendarGrid.querySelectorAll('.day:not(.header)');
-  existingDays.forEach(day => day.remove());
-
-  // Boşlukları doldurma
-  let startDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1; 
-  for (let i = 0; i < startDay; i++) {
-    const emptyDay = document.createElement('div');
-    emptyDay.classList.add('day');
-    calendarGrid.appendChild(emptyDay);
-  }
-
-  // Takvim hücrelerini doldurma
-  for (let i = 1; i <= daysInMonth; i++) {
-    const dayEl = document.createElement('div');
-    dayEl.classList.add('day');
-    dayEl.textContent = i;
+/* --- TELEGRAM --- */
+document.getElementById('sendMsg').onclick = () => {
+    const msgInput = document.getElementById('messageText');
+    const msg = msgInput.value.trim();
+    if(!msg) { alert('Boş mesaj mı? 🥺'); return; }
     
-    dayEl.classList.add('current-month');
+    const btn = document.getElementById('sendMsg');
+    btn.innerText = "Gönderiliyor..."; btn.disabled = true;
 
-    // Bugün kontrolü
-    if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-      dayEl.classList.add('today');
-      dayEl.title = 'Bugün';
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: CHAT_ID, text: `❤️ Mesaj:\n\n${msg}` })
+    }).then(r=>r.json()).then(d=>{
+        if(d.ok) { alert('Gitti aşkım! ❤️'); msgInput.value = ''; closeMsgModal(); }
+        else alert('Hata oluştu');
+    }).finally(()=>{ btn.innerText = "Gönder ❤️"; btn.disabled = false; });
+};
+
+/* --- MENÜ GEÇİŞİ --- */
+function switchTab(tabName) {
+    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    if(tabName === 'home') {
+        document.getElementById('home-page').classList.add('active');
+        document.querySelector('.nav-item:nth-child(1)').classList.add('active');
+    } else {
+        document.getElementById('settings-page').classList.add('active');
+        document.querySelector('.nav-item:nth-child(2)').classList.add('active');
     }
-
-    // ÖZEL GÜNLERİ İŞARETLEME
-    const monthDayKey = `${(month + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
-    if (SPECIAL_DATES[monthDayKey]) {
-        dayEl.classList.add('special');
-        dayEl.title = SPECIAL_DATES[monthDayKey]; 
-    }
-
-    calendarGrid.appendChild(dayEl);
-  }
 }
 
-// Takvim navigasyon fonksiyonları
-function prevMonth() {
-  currentDate.setMonth(currentDate.getMonth() - 1);
-  renderCalendar(currentDate);
+/* --- MÜZİK & SAYAÇ --- */
+musicToggle.addEventListener('change', function() { this.checked ? music.play().catch(()=>{}) : music.pause(); });
+
+function updateCounter() {
+    const now = new Date();
+    const diff = now - startDate;
+    const totalSeconds = Math.floor(Math.abs(diff) / 1000);
+    document.getElementById("days").innerText = Math.floor(totalSeconds / 3600 / 24);
+    document.getElementById("hours").innerText = String(Math.floor((totalSeconds / 3600) % 24)).padStart(2,'0');
+    document.getElementById("minutes").innerText = String(Math.floor((totalSeconds / 60) % 60)).padStart(2,'0');
+    document.getElementById("seconds").innerText = String(Math.floor(totalSeconds % 60)).padStart(2,'0');
 }
-
-function nextMonth() {
-  currentDate.setMonth(currentDate.getMonth() + 1);
-  renderCalendar(currentDate);
-}
-
-// --- Uygulama Başlangıcı ---
-
-function initialize() {
-  // Sayaç ve iltifatı başlat
-  updateTimer();
-  setInterval(updateTimer, 1000);
-  showCompliment();
-  setInterval(showCompliment, 10000); 
-
-  // Takvimi yükle
-  renderCalendar(currentDate);
-
-  // Tema Yükle
-  const savedTheme = localStorage.getItem('theme') || 'default';
-  setTheme(savedTheme); 
-  
-  // Karanlık Mod Yükle
-  const isDarkMode = localStorage.getItem('darkMode') === 'true';
-  themeToggle.checked = isDarkMode;
-  if (isDarkMode) {
-      document.body.classList.add('dark-mode');
-  }
-
-  // Kalp Yağmuru Hızı Yükle
-  const currentHeartSpeed = parseInt(localStorage.getItem('heartSpeed')) || 500;
-  heartSpeedRange.value = currentHeartSpeed;
-  startHeartRain(currentHeartSpeed);
-  
-  // Müzik Durumu Yükle
-  const isMusicOn = localStorage.getItem('musicOn') !== 'false';
-  if (isMusicOn) {
-      musicState.textContent = 'Açık';
-  } else {
-      backgroundMusic.pause();
-      musicState.textContent = 'Kapalı';
-  }
-}
-
-window.onload = initialize;
-
-// --- Etkinlik Dinleyicileri (Event Listeners) ---
-
-// Sidebar Yönetimi
-menuBtn.onclick = () => {
-  sidebar.classList.toggle('open');
-  overlay.classList.toggle('show');
-};
-overlay.onclick = () => {
-  sidebar.classList.remove('open');
-  overlay.classList.remove('show');
-  settingsModal.style.display = 'none';
-};
-
-// Ayarlar Modal Yönetimi
-settingsBtn.onclick = () => {
-  settingsModal.style.display = 'flex'; // Display flex olarak güncellendi
-};
-closeSettings.onclick = () => {
-  settingsModal.style.display = 'none';
-};
-window.onclick = (event) => {
-  if (event.target === settingsModal) {
-    settingsModal.style.display = 'none';
-  }
-};
-
-// Karanlık Tema Değiştir
-themeToggle.onchange = () => {
-    document.body.classList.toggle('dark-mode', themeToggle.checked);
-    localStorage.setItem('darkMode', themeToggle.checked);
-    renderCalendar(currentDate); 
-};
-
-// Tema Seçimi Dinleyicisi
-themeOptions.onclick = (event) => {
-    if (event.target.classList.contains('theme-btn')) {
-        const themeName = event.target.dataset.theme;
-        setTheme(themeName);
-        renderCalendar(currentDate); 
-    }
-};
-
-// Kalp Hızı Değiştir
-heartSpeedRange.oninput = () => {
-  startHeartRain(heartSpeedRange.value);
-};
-
-// Müzik Düğmesi
-musicToggleBtn.onclick = toggleMusic;
-
-// Takvim Navigasyonu
-prevMonthBtn.onclick = prevMonth;
-nextMonthBtn.onclick = nextMonth;
+setInterval(updateCounter, 1000); updateCounter();

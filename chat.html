@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Özel Sohbet ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        
+        body { 
+            background-color: #ffe6eb;
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 2C6 2 4 4 4 8v10c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V8c0-4-2-6-6-6zm-1 2h2v4h-2V4zm0 6h2v2h-2v-2z' fill='%23ff4b6e' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* HEADER */
+        .chat-header {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            padding: 10px 15px; display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .back-btn { font-size: 1.2rem; color: #ff4b6e; cursor: pointer; text-decoration: none; display: flex; align-items: center; }
+        
+        /* Profil Resmi */
+        .profile-container { position: relative; width: 42px; height: 42px; }
+        .profile-pic { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid #ff4b6e; padding: 1px; background: white; }
+        
+        .header-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .header-info h3 { font-size: 1rem; color: #333; margin: 0; font-weight: 600; }
+        .header-info p { font-size: 0.75rem; color: #777; font-weight: 500; display: flex; align-items: center; gap: 5px; margin-top: 2px; transition: color 0.3s; }
+        
+        /* Çevrimiçi Durumu */
+        .online-dot { width: 8px; height: 8px; background: #ccc; border-radius: 50%; display: inline-block; transition: background 0.3s; }
+        .status-text.online { color: #00ba88; }
+        .status-text.online .online-dot { background: #00ba88; animation: pulse 2s infinite; }
+
+        .settings-btn { font-size: 1.2rem; color: #555; padding: 10px; cursor: pointer; }
+
+        /* SOHBET ALANI */
+        #chat-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+        
+        .message {
+            max-width: 75%; padding: 10px 15px; border-radius: 15px;
+            font-size: 0.95rem; line-height: 1.4; position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); word-wrap: break-word;
+            animation: popIn 0.3s ease; cursor: pointer; user-select: none;
+            transition: all 0.2s ease;
+        }
+        .message.received { align-self: flex-start; background: white; color: #333; border-bottom-left-radius: 2px; }
+        .message.sent { align-self: flex-end; background: #ff4b6e; color: white; border-bottom-right-radius: 2px; }
+        
+        /* Seçili mesaj stili - Hafif kayma efekti */
+        .message.received.selected { transform: translateX(-10px); }
+        .message.sent.selected { transform: translateX(10px); }
+        
+        /* Silme Butonu */
+        .delete-icon {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(255, 75, 110, 0.9); color: white; border: none;
+            border-radius: 50%; width: 35px; height: 35px; font-size: 14px;
+            cursor: pointer; display: none; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); z-index: 5;
+            transition: all 0.2s ease;
+        }
+        .delete-icon:active { transform: translateY(-50%) scale(0.9); }
+        .message.received .delete-icon { right: -45px; }
+        .message.sent .delete-icon { left: -45px; }
+        .message.selected .delete-icon { display: flex; }
+        
+        .time { font-size: 0.65rem; display: block; text-align: right; margin-top: 5px; opacity: 0.7; }
+
+        /* INPUT */
+        .chat-input-area { background: white; padding: 10px 15px 25px 15px; display: flex; align-items: center; gap: 10px; box-shadow: 0 -5px 15px rgba(0,0,0,0.03); }
+        input { flex: 1; padding: 12px 20px; border-radius: 25px; border: 1px solid #eee; background: #f9f9f9; outline: none; font-size: 1rem; transition: 0.3s; }
+        input:focus { border-color: #ff4b6e; background: white; }
+        .send-btn { width: 45px; height: 45px; background: #ff4b6e; color: white; border-radius: 50%; border: none; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(255, 75, 110, 0.3); }
+        .send-btn:active { transform: scale(0.9); }
+
+        /* MODAL (Ayarlar) */
+        #settings-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 999;
+            display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: white; width: 85%; max-width: 320px; padding: 25px;
+            border-radius: 20px; text-align: center; animation: popIn 0.3s ease;
+        }
+        .modal-content h3 { color: #333; margin-bottom: 20px; }
+        .setting-group { margin-bottom: 20px; text-align: left; }
+        .setting-group label { font-size: 0.9rem; color: #777; display: block; margin-bottom: 5px; }
+        .setting-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+        
+        .img-preview-box { 
+            width: 80px; height: 80px; border-radius: 50%; border: 2px dashed #ddd; 
+            margin: 0 auto 10px; display: flex; justify-content: center; align-items: center;
+            overflow: hidden; cursor: pointer; position: relative;
+        }
+        .img-preview-box img { width: 100%; height: 100%; object-fit: cover; }
+        .img-preview-box i { color: #ddd; font-size: 1.5rem; }
+
+        .modal-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
+        .btn-save { background: #ff4b6e; color: white; }
+        .btn-save:active { transform: scale(0.98); }
+        .btn-clear { background: #ffe6eb; color: #ff4b6e; }
+        .btn-clear:active { transform: scale(0.98); }
+        .btn-close { background: transparent; color: #aaa; }
+
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        
+        #chat-area::-webkit-scrollbar { width: 6px; }
+        #chat-area::-webkit-scrollbar-thumb { background: rgba(255, 75, 110, 0.3); border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+    <div class="chat-header">
+        <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+        
+        <div class="profile-container">
+            <img id="header-img" src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="profile-pic">
+        </div>
+        
+        <div class="header-info">
+            <h3 id="header-name">Aşkım ❤️</h3>
+            <p class="status-text" id="status-text"><span class="online-dot"></span> <span id="status-label">Bekleniyor...</span></p>
+        </div>
+
+        <i class="fa-solid fa-ellipsis-vertical settings-btn" onclick="openSettings()"></i>
+    </div>
+
+    <div id="chat-area">
+        <div style="text-align:center; font-size:0.8rem; color:#aaa; margin-top:20px; margin-bottom: 20px;">
+            🔒 Güvenli Aşk Sohbeti<br>
+            <span style="font-size:0.7rem; color:#ff4b6e">(Silmek için mesaja tıkla → Çöp kutusuna bas)</span>
+        </div>
+    </div>
+
+    <div class="chat-input-area">
+        <input type="text" id="msg-input" placeholder="Mesajını yaz..." autocomplete="off">
+        <button class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+
+    <div id="settings-modal">
+        <div class="modal-content">
+            <h3>Sohbet Ayarları ⚙️</h3>
+            
+            <div class="setting-group">
+                <label>Telefonunda Görünen İsim:</label>
+                <input type="text" id="name-input" placeholder="Örn: Kocam ❤️">
+            </div>
+
+            <div class="setting-group" style="text-align:center;">
+                <label>Profil Fotoğrafın:</label>
+                <div class="img-preview-box" onclick="document.getElementById('file-input').click()">
+                    <img id="my-preview-img" src="https://cdn-icons-png.flaticon.com/512/847/847969.png">
+                    <input type="file" id="file-input" hidden accept="image/*" onchange="handleFileSelect(event)">
+                </div>
+                <span style="font-size:0.7rem; color:#aaa;">(Değiştirmek için tıkla)</span>
+            </div>
+
+            <button class="modal-btn btn-save" onclick="saveSettings()">Kaydet</button>
+            <button class="modal-btn btn-clear" onclick="clearAllChat()">🗑️ Sohbeti Temizle</button>
+            <button class="modal-btn btn-close" onclick="closeSettings()">Kapat</button>
+        </div>
+    </div>
+
+    <script>
+        // --- GUN.JS KURULUMU ---
+        const gun = Gun(['https://gun-manhattan.herokuapp.com/gun', 'https://gun-us.herokuapp.com/gun']);
+        
+        // VERSİYON 12 (Silme düzeltmesi)
+        const chatNode = gun.get('bizim-ask-sohbeti-v12-fixed'); 
+        const profileNode = gun.get('bizim-ask-profili-v12');
+        const statusNode = gun.get('bizim-ask-durumu-v12');
+
+        const BOT_TOKEN = '8387694074:AAHF30x-1NcmE0Gs4v2jWMpyJPDuwy0XCa4'; 
+        const CHAT_ID = '6750266187';
+
+        // --- KİMLİK BELİRLEME ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const isBoyfriend = urlParams.get('mode') === 'a923';
+        const myRole = isBoyfriend ? 'boy' : 'girl';
+        const otherRole = isBoyfriend ? 'girl' : 'boy';
+
+        const headerNameEl = document.getElementById('header-name');
+        const headerImgEl = document.getElementById('header-img');
+        const myPreviewImgEl = document.getElementById('my-preview-img');
+        
+        // SEÇİLİ MESAJ TAKİBİ
+        let selectedMessageId = null;
+
+        // --- İSİM AYARI (Sadece kendi ekranında görünen isim) ---
+        const savedName = localStorage.getItem('chatPartnerName');
+        if (savedName) {
+            headerNameEl.innerText = savedName;
+        } else {
+            headerNameEl.innerText = isBoyfriend ? "Dünyam (O) 🌸" : "Sevgilim ❤️";
+        }
+
+        // ==========================================
+        // 1. DURUM (ONLINE/OFFLINE) MANTIĞI
+        // ==========================================
+        
+        // Kalp atışı (Ben buradayım sinyali - 3 saniyede bir)
+        setInterval(() => {
+            statusNode.get(myRole).put({ lastSeen: Date.now() });
+        }, 3000);
+
+        // Karşı tarafı kontrol et (Her 5 saniyede bir)
+        setInterval(() => {
+            checkPartnerStatus();
+        }, 5000);
+
+        let partnerLastSeen = 0;
+        statusNode.get(otherRole).on((data) => {
+            if(data) partnerLastSeen = data.lastSeen;
+            checkPartnerStatus();
+        });
+
+        function checkPartnerStatus() {
+            const now = Date.now();
+            const diff = now - partnerLastSeen;
+            const statusContainer = document.getElementById('status-text');
+            const statusLabel = document.getElementById('status-label');
+
+            // Eğer son 10 saniye içinde sinyal geldiyse -> ONLİNE
+            if (diff < 10000) {
+                statusContainer.classList.add('online');
+                statusLabel.innerText = "Çevrimiçi";
+            } else {
+                // Değilse -> Son görülme saati
+                statusContainer.classList.remove('online');
+                const date = new Date(partnerLastSeen);
+                const timeStr = date.getHours().toString().padStart(2,'0') + ":" + date.getMinutes().toString().padStart(2,'0');
+                
+                // Eğer çok eski bir tarihse (sistem yeni açıldıysa) "Görülmedi" yaz
+                if(partnerLastSeen === 0) statusLabel.innerText = "Bekleniyor...";
+                else statusLabel.innerText = `Son görülme: ${timeStr}`;
+            }
+        }
+
+        // ==========================================
+        // 2. PROFİL FOTOĞRAFI MANTIĞI
+        // ==========================================
+
+        // Karşı tarafın fotosunu dinle ve header'a koy
+        profileNode.get(otherRole).on((data) => {
+            if(data && data.img) {
+                headerImgEl.src = data.img;
+            }
+        });
+
+        // Kendi fotomu yüklemişsem ayarlar menüsünde göster
+        profileNode.get(myRole).once((data) => {
+            if(data && data.img) {
+                myPreviewImgEl.src = data.img;
+            }
+        });
+
+        // Dosya Seçilince (Base64 Çevir ve Kaydet)
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Img = e.target.result;
+                    // Önizlemeyi güncelle
+                    myPreviewImgEl.src = base64Img;
+                    // Gun.js'e kaydet (Database'e atar)
+                    profileNode.get(myRole).put({ img: base64Img });
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // ==========================================
+        // 3. MENÜ VE AYARLAR
+        // ==========================================
+        
+        function openSettings() {
+            document.getElementById('settings-modal').style.display = 'flex';
+            document.getElementById('name-input').value = headerNameEl.innerText;
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').style.display = 'none';
+        }
+
+        function saveSettings() {
+            // İsmi kaydet
+            const newName = document.getElementById('name-input').value;
+            if (newName && newName.trim() !== "") {
+                headerNameEl.innerText = newName;
+                localStorage.setItem('chatPartnerName', newName);
+            }
+            // Fotoğraf zaten onchange ile kaydedildi
+            closeSettings();
+        }
+
+        // ==========================================
+        // 4. MESAJLAŞMA (SİLME DAHİL - DÜZELTİLDİ)
+        // ==========================================
+
+        // Sohbeti Temizle (Tüm mesajları soft delete)
+        function clearAllChat() {
+            if(confirm("Tüm mesajlar silinecek. Emin misin?")) {
+                const messages = document.querySelectorAll('.message');
+                messages.forEach(msgDiv => {
+                    const id = msgDiv.id;
+                    if(id) {
+                        chatNode.get(id).put({ isDeleted: true });
+                    }
+                });
+                closeSettings();
+            }
+        }
+
+        // Mesaj Seçme Toggle (Tıklama)
+        function toggleMessageSelection(id) {
+            const messageDiv = document.getElementById(id);
+            if(!messageDiv) return;
+            
+            if (selectedMessageId === id) {
+                // Aynı mesaja tekrar tıklanırsa seçimi kaldır
+                messageDiv.classList.remove('selected');
+                selectedMessageId = null;
+            } else {
+                // Önceki seçimi temizle
+                document.querySelectorAll('.message').forEach(m => m.classList.remove('selected'));
+                // Yeni mesajı seç
+                messageDiv.classList.add('selected');
+                selectedMessageId = id;
+            }
+        }
+
+        // Tek Mesaj Silme (Çöp Kutusu Butonu)
+        function deleteMessage(id, event) {
+            if(event) event.stopPropagation(); // Mesajın onclick'i tetiklenmesin
+            chatNode.get(id).put({ isDeleted: true });
+            selectedMessageId = null;
+        }
+
+        // Mesaj Gönderme
+        function sendMessage() {
+            const input = document.getElementById('msg-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+            const msgId = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+
+            chatNode.get(msgId).put({
+                text: text,
+                sender: myRole,
+                time: timeStr,
+                isDeleted: false
+            });
+
+            // TELEGRAM (Sadece Kız Arkadaş atarsa)
+            if (!isBoyfriend) {
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        chat_id: CHAT_ID, 
+                        text: `💌 Sevgilin:\n\n"${text}"\n\n(Cevaplamak için gizli linke gir)` 
+                    })
+                }).catch(console.error);
+            }
+
+            input.value = '';
+            input.focus();
+        }
+
+        // Enter tuşu ile gönderme
+        document.getElementById('msg-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // ==========================================
+        // 5. CANLI MESAJ AKIŞI (SOFT DELETE MANTIĞI)
+        // ==========================================
+
+        chatNode.map().on((data, id) => {
+            const existingEl = document.getElementById(id);
+
+            // SİLİNMİŞSE -> EKRANDAN KALDIR
+            if (!data || data.isDeleted) {
+                if (existingEl) existingEl.remove();
+                return;
+            }
+
+            // YENİ MESAJSA -> EKRANA EKLE
+            if (data.text && !existingEl) {
+                addMessageToScreen(data, id);
+            }
+        });
+
+        function addMessageToScreen(data, id) {
+            const chatArea = document.getElementById('chat-area');
+            const div = document.createElement('div');
+            div.id = id;
+            
+            // Mesaj Yönü Belirle
+            let type = 'received';
+            if (myRole === data.sender) type = 'sent'; // Ben attıysam sağa
+            else type = 'received'; // O attıysa sola
+
+            div.className = `message ${type}`;
+            
+            // Mesaj içeriği
+            div.innerHTML = `
+                ${data.text}
+                <span class="time">${data.time}</span>
+            `;
+
+            // Çöp kutusu butonu ekle
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-icon';
+            deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+            deleteBtn.onclick = function(e) {
+                deleteMessage(id, e);
+            };
+            
+            div.appendChild(deleteBtn);
+
+            // Mesaja tıklayınca seçim toggle
+            div.onclick = function(e) {
+                // Eğer çöp kutusuna tıklanmadıysa
+                if(e.target !== deleteBtn && !deleteBtn.contains(e.target)) {
+                    toggleMessageSelection(id);
+                }
+            };
+
+            chatArea.appendChild(div);
+            
+            // Otomatik scroll
+            setTimeout(() => { 
+                chatArea.scrollTop = chatArea.scrollHeight; 
+            }, 100);
+        }
+
+        // Modal Dışına Tıklama ile Kapatma
+        window.onclick = function(event) {
+            const modal = document.getElementById('settings-modal');
+            if (event.target === modal) {
+                closeSettings();
+            }
+        }
+    </script>
+</body>
+</html>
