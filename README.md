@@ -1,2 +1,2 @@
-# d-nyanineng-zelk-z-naa
+# dunyanin enguzel kizinaa
 &lt;3
