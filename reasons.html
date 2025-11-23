@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>herseyinleçokseviyorum</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,6 +20,8 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
+            /* Mobilde dikey taşmaları önlemek için */
+            width: 100vw;
         }
         
         #love-overlay {
@@ -29,19 +31,26 @@
         }
         .love-text {
             position: absolute; color: rgba(229, 142, 142, 0.7);
-            font-size: 1.5em; opacity: 0;
+            font-size: 1.2em; /* Mobilde çok büyük olmasın diye biraz küçülttüm */
+            opacity: 0;
             animation: floatFade 10s infinite ease-in-out;
+            white-space: nowrap; /* Yazıların alt satıra kaymasını engeller */
         }
         @keyframes floatFade {
             0%, 100% { opacity: 0; transform: translateY(20px); }
             50% { opacity: 1; transform: translateY(-20px); }
         }
 
-        .container { text-align: center; position: relative; z-index: 10; }
+        .container { 
+            text-align: center; 
+            position: relative; 
+            z-index: 10; 
+            width: 90%; /* Mobilde kenarlardan boşluk kalsın */
+            max-width: 600px;
+        }
         
-        /* EKLENEN CSS KURALI */
         .pre-title {
-            font-size: 1.8em;
+            font-size: 1.5em; /* Mobilde daha dengeli */
             font-weight: 300;
             color: rgba(255, 255, 255, 0.8);
             margin-bottom: 10px;
@@ -52,34 +61,56 @@
             to { opacity: 1; }
         }
 
-        #initial-word { font-size: 4em; font-weight: bold; opacity: 0; transition: opacity 1s; }
-        #reasons-list { font-size: 2em; height: 50px; transition: color 1s; }
+        #initial-word { 
+            font-size: 3em; /* A54 ekranına sığması için ayarlandı */
+            font-weight: bold; 
+            opacity: 0; 
+            transition: opacity 1s; 
+            margin: 10px 0;
+        }
+
+        #reasons-list { 
+            font-size: 1.6em; /* Mobilde okunabilirlik için ideal boyut */
+            min-height: 80px; /* Yükseklik sabit kalsın, zıplama yapmasın */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 1s; 
+            line-height: 1.4;
+            padding: 0 10px;
+        }
+
         #final-box {
             background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px); padding: 40px; border-radius: 15px;
-            font-family: 'Playfair Display', serif; font-size: 2em; font-style: italic;
+            backdrop-filter: blur(10px); padding: 30px 20px; border-radius: 15px;
+            font-family: 'Playfair Display', serif; 
+            font-size: 1.6em; /* Mobilde kutudan taşmasın */
+            font-style: italic;
             opacity: 0; transform: scale(0.8);
             transition: opacity 0.5s, transform 0.5s;
             display: inline-block;
+            width: 100%; /* Kutuyu genişlet */
+            box-sizing: border-box;
         }
         .visible { opacity: 1 !important; }
         .final-visible { opacity: 1 !important; transform: scale(1) !important; }
 
         #back-button {
-            position: fixed; bottom: 25px; left: 25px;
-            width: 45px; height: 45px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: fixed; bottom: 30px; left: 30px;
+            width: 50px; height: 50px;
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white; border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
-            font-size: 1.5em; text-decoration: none;
-            backdrop-filter: blur(10px);
+            font-size: 1.8em; text-decoration: none;
+            backdrop-filter: blur(5px);
             transition: transform 0.2s, background-color 0.2s;
             z-index: 20;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        #back-button:hover {
-            transform: scale(1.1);
-            background-color: rgba(255, 255, 255, 0.2);
+        #back-button:active {
+            transform: scale(0.9);
+            background-color: rgba(255, 255, 255, 0.3);
         }
     </style>
 </head>
@@ -112,7 +143,6 @@
             }, 1000);
         };
         
-        // DEĞİŞTİRİLEN FONKSİYON
         function animateTitle() {
             const titles = [
                 "❤️",
@@ -163,7 +193,7 @@
                 loveText.innerText = 'Seni Çok Seviyorum';
                 loveText.style.top = `${Math.random() * 100}%`;
                 loveText.style.left = `${Math.random() * 100}%`;
-                loveText.style.fontSize = `${Math.random() * 1 + 1}em`;
+                loveText.style.fontSize = `${Math.random() * 1 + 0.5}em`; // Mobilde çok büyük olmaması için biraz küçülttüm
                 loveText.style.animationDelay = `${Math.random() * 10}s`;
                 loveOverlay.appendChild(loveText);
             }

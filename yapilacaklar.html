@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bizim Listemiz ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        
+        body {
+            background-color: #ffe6eb;
+            background-image: linear-gradient(#ffccd5 1px, transparent 1px), linear-gradient(90deg, #ffccd5 1px, transparent 1px);
+            background-size: 20px 20px;
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 80px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .back-btn {
+            position: fixed; top: 20px; left: 20px;
+            font-size: 1.5rem; color: #ff4b6e;
+            z-index: 100; cursor: pointer; text-decoration: none;
+            background: white; width: 40px; height: 40px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .header { text-align: center; margin-top: 60px; margin-bottom: 30px; width: 100%; }
+        .header h1 { color: #ff4b6e; font-size: 1.8rem; margin-bottom: 5px; }
+        .header p { color: #888; font-size: 0.9rem; }
+
+        /* GİRİŞ ALANI */
+        .input-container {
+            width: 100%; max-width: 500px;
+            background: white; padding: 10px; border-radius: 30px;
+            display: flex; gap: 10px;
+            box-shadow: 0 5px 20px rgba(255, 75, 110, 0.15);
+            margin-bottom: 30px; border: 2px solid #fff0f3;
+        }
+
+        input {
+            flex: 1; border: none; outline: none; padding: 10px 15px;
+            font-size: 1rem; border-radius: 20px; color: #555;
+        }
+
+        .add-btn {
+            background: #ff4b6e; color: white; border: none;
+            width: 45px; height: 45px; border-radius: 50%;
+            font-size: 1.2rem; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .add-btn:active { transform: scale(0.9); }
+
+        /* LİSTE */
+        #todo-list { width: 100%; max-width: 500px; list-style: none; }
+
+        .todo-item {
+            background: white; margin-bottom: 15px; padding: 15px;
+            border-radius: 15px; display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.05); animation: slideIn 0.3s ease;
+            border-left: 5px solid #ff4b6e; position: relative;
+        }
+
+        /* Yapıldı Durumu */
+        .todo-item.done { background: #f9f9f9; opacity: 0.7; border-left-color: #ccc; }
+        .todo-item.done .text { text-decoration: line-through; color: #aaa; }
+
+        .checkbox {
+            width: 25px; height: 25px; border: 2px solid #ff4b6e;
+            border-radius: 50%; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; color: white;
+            transition: 0.2s;
+        }
+        .todo-item.done .checkbox { background: #00ba88; border-color: #00ba88; }
+
+        .text { flex: 1; font-size: 1rem; color: #444; word-break: break-word; }
+
+        /* SÖZ VER BUTONU */
+        .promise-btn {
+            font-size: 0.7rem; padding: 5px 10px; border-radius: 15px;
+            border: 1px solid #ff4b6e; color: #ff4b6e; background: #fff0f3;
+            cursor: pointer; font-weight: bold; white-space: nowrap;
+        }
+        .promise-btn.active {
+            background: #ff4b6e; color: white; border-color: #ff4b6e;
+        }
+
+        /* SİL BUTONU */
+        .delete-btn {
+            color: #ffaaaa; cursor: pointer; font-size: 1rem; padding: 5px;
+        }
+        .delete-btn:hover { color: #ff4444; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+
+    <div class="header">
+        <h1>Beraber Yapılacaklar 📝</h1>
+        <p>Hayallerimiz ve planlarımız...</p>
+    </div>
+
+    <div class="input-container">
+        <input type="text" id="taskInput" placeholder="Ne yapmak istersin aşkım?">
+        <button class="add-btn" onclick="addTask()"><i class="fa-solid fa-plus"></i></button>
+    </div>
+
+    <ul id="todo-list">
+        </ul>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        // --- AYARLAR ---
+        const gun = Gun(['https://gun-manhattan.herokuapp.com/gun', 'https://gun-us.herokuapp.com/gun']);
+        const listNode = gun.get('bizim-yapilacaklar-listesi-v2'); // Veritabanı ID
+
+        const BOT_TOKEN = '8387694074:AAHF30x-1NcmE0Gs4v2jWMpyJPDuwy0XCa4'; 
+        const CHAT_ID = '6750266187';
+
+        // --- EKRANA EKLEME ---
+        function renderItem(data, id) {
+            const list = document.getElementById('todo-list');
+            const existingItem = document.getElementById(id);
+
+            // Eğer veri null ise (silinmişse) kaldır
+            if (!data) {
+                if (existingItem) existingItem.remove();
+                return;
+            }
+
+            // Zaten varsa güncelle
+            if (existingItem) {
+                updateElementState(existingItem, data);
+                return;
+            }
+
+            // Yeni eleman oluştur
+            const li = document.createElement('li');
+            li.id = id;
+            li.className = `todo-item ${data.done ? 'done' : ''}`;
+            
+            li.innerHTML = `
+                <div class="checkbox" onclick="toggleDone('${id}', ${!data.done})">
+                    ${data.done ? '<i class="fa-solid fa-check"></i>' : ''}
+                </div>
+                <span class="text">${data.text}</span>
+                <button class="promise-btn ${data.promise ? 'active' : ''}" onclick="togglePromise('${id}', ${!data.promise})">
+                    ${data.promise ? 'Söz Verildi 🤞' : 'Söz Ver'}
+                </button>
+                <i class="fa-solid fa-trash delete-btn" onclick="deleteTask('${id}')"></i>
+            `;
+
+            list.prepend(li); // En yeniyi üste ekle
+        }
+
+        // Durum güncelleme (Checkbox veya Söz değişince)
+        function updateElementState(el, data) {
+            if (data.done) {
+                el.classList.add('done');
+                el.querySelector('.checkbox').innerHTML = '<i class="fa-solid fa-check"></i>';
+            } else {
+                el.classList.remove('done');
+                el.querySelector('.checkbox').innerHTML = '';
+            }
+
+            const pBtn = el.querySelector('.promise-btn');
+            if (data.promise) {
+                pBtn.classList.add('active');
+                pBtn.innerText = 'Söz Verildi 🤞';
+            } else {
+                pBtn.classList.remove('active');
+                pBtn.innerText = 'Söz Ver';
+            }
+        }
+
+        // --- VERİ EKLEME ---
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const id = Date.now().toString();
+            
+            // Veritabanına kaydet
+            listNode.get(id).put({
+                text: text,
+                done: false,
+                promise: false
+            });
+
+            // TELEGRAM BİLDİRİMİ
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    chat_id: CHAT_ID, 
+                    text: `📝 LİSTEYE YENİ GÖREV:\n\n"${text}"\n\n(Hemen siteye bak aşkım)` 
+                })
+            }).catch(console.error);
+
+            input.value = '';
+        }
+
+        // --- GÜNCELLEME FONKSİYONLARI ---
+        function toggleDone(id, newState) {
+            listNode.get(id).put({ done: newState });
+            if(newState) {
+                // Konfeti patlat
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#00ba88', '#ffffff'] });
+            }
+        }
+
+        function togglePromise(id, newState) {
+            listNode.get(id).put({ promise: newState });
+        }
+
+        function deleteTask(id) {
+            if(confirm("Bu maddeyi listeden silmek istiyor musun?")) {
+                listNode.get(id).put(null); // Veriyi tamamen sil
+            }
+        }
+
+        // --- VERİLERİ DİNLE ---
+        listNode.map().on((data, id) => {
+            renderItem(data, id);
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sana Söz ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        
+        body {
+            background-color: #fff0f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .back-btn {
+            position: fixed; top: 20px; left: 20px;
+            font-size: 1.5rem; color: #ff4b6e;
+            z-index: 100; cursor: pointer; text-decoration: none;
+            background: white; width: 40px; height: 40px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* KART TASARIMI */
+        .flower-card {
+            background: white;
+            padding: 20px;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(255, 75, 110, 0.15);
+            width: 100%;
+            max-width: 350px;
+            border: 2px solid #ffe6eb;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 1s ease forwards;
+        }
+
+        .flower-img-box {
+            width: 100%;
+            height: 300px;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            position: relative;
+        }
+
+        .flower-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        /* Çiçek ismi */
+        h1 {
+            color: #ff4b6e;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        /* Mesaj */
+        p {
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .promise-badge {
+            background: #ffebf0;
+            color: #ff4b6e;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            display: inline-block;
+            border: 1px solid #ff4b6e;
+            font-size: 0.9rem;
+        }
+
+        /* Konfeti efekti için */
+        canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 999;
+        }
+
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Yükleniyor animasyonu */
+        #loader {
+            font-size: 1.2rem; color: #ff4b6e; font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    
+    <div id="loader">Senin İçin Bir Çiçek Seçiliyor... 🌸</div>
+
+    <div class="flower-card" id="card" style="display: none;">
+        <div class="flower-img-box">
+            <img id="flower-img" src="" alt="Çiçek">
+        </div>
+        <h1 id="flower-name">...</h1>
+        <p>
+            sanal çicek güzel olmuyo :D <br>
+            <br>
+            Beklemede kal! 😘
+        </p>
+        <div class="promise-badge">Söz Verildi 🤞</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        // --- ÇİÇEK LİSTESİ (Resimler Unsplash'ten) ---
+        const flowers = [
+            { name: "Kırmızı Gül 🌹", img: "https://images.unsplash.com/photo-1648754141278-82ee97c24944?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
+            { name: "Beyaz Papatya 🌼", img: "https://images.unsplash.com/photo-1744142601636-a959d2a0bf42?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
+            { name: "Sarı Lale 🌷", img: "https://images.unsplash.com/photo-1715351881587-dea5fd58f515?q=80&w=1634&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
+            { name: "Mor Orkide 🌸", img: "https://images.unsplash.com/photo-1620710204537-7d2ddcd39d0c?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
+            { name: "Lotus Çiçeği 🪷", img: "https://images.unsplash.com/photo-1727061947181-dfe4e4cfd052?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8TG90dXMlMjAlQzMlODdpJUMzJUE3ZSVDNCU5Rml8ZW58MHx8MHx8fDA%3D" },
+        ];
+
+        // Telegram Ayarları
+        const BOT_TOKEN = '8387694074:AAHF30x-1NcmE0Gs4v2jWMpyJPDuwy0XCa4'; 
+        const CHAT_ID = '6750266187';
+
+        window.onload = function() {
+            // 1. Rastgele Çiçek Seç
+            const randomFlower = flowers[Math.floor(Math.random() * flowers.length)];
+
+            // 2. Ekrana Bas (Biraz gecikmeli ki heyecan olsun)
+            setTimeout(() => {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('card').style.display = 'block';
+                
+                document.getElementById('flower-img').src = randomFlower.img;
+                document.getElementById('flower-name').innerText = randomFlower.name;
+
+                // Konfeti Patlat
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#ff4b6e', '#ffccd5']
+                });
+
+                // 3. TELEGRAM BİLDİRİMİ GÖNDER
+                sendTelegramNotification(randomFlower.name);
+
+            }, 1500);
+        };
+
+        function sendTelegramNotification(flowerName) {
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    chat_id: CHAT_ID, 
+                    text: `🚨 GÖREV GELDİ!\n\nSevgilin "Günün Çiçeği" sayfasına girdi.\n\nOna Çıkan: ${flowerName}\n\nGit ve gerçeğini al aslanım! 💐` 
+                })
+            }).catch(console.error);
+        }
+    </script>
+
+</body>
+</html>
