@@ -5,6 +5,32 @@ const musicToggle = document.getElementById("music-toggle");
 const BOT_TOKEN = '8387694074:AAHF30x-1NcmE0Gs4v2jWMpyJPDuwy0XCa4'; 
 const CHAT_ID = '6750266187';
 
+/* --- GÜNCELLEME BİLDİRİM SİSTEMİ (YENİ) --- */
+// BURAYI SEN HER YENİLİK YAPTIĞINDA DEĞİŞTİR (Örn: 1.3 yap)
+const CURRENT_VERSION = "1.0"; 
+
+function checkUpdates() {
+    const lastSeenVersion = localStorage.getItem('lastSeenVersion');
+    const dot = document.getElementById('update-dot');
+    const menuDot = document.getElementById('menu-notification-dot');
+
+    // Eğer son görülen versiyon, şimdiki versiyon değilse (yani yeniyse)
+    if (lastSeenVersion !== CURRENT_VERSION) {
+        dot.style.display = 'block'; // Butonun yanındaki nokta
+        menuDot.style.display = 'block'; // Hamburger menüdeki nokta
+    } else {
+        dot.style.display = 'none';
+        menuDot.style.display = 'none';
+    }
+}
+
+// Güncellemeler sayfasına tıklayınca bu çalışır
+function markUpdatesRead() {
+    localStorage.setItem('lastSeenVersion', CURRENT_VERSION);
+    document.getElementById('update-dot').style.display = 'none';
+    document.getElementById('menu-notification-dot').style.display = 'none';
+}
+
 /* --- TEMA LİSTESİ --- */
 const themes = [
     { id: 0, name: "Soft Pink (Default)", primary: "#ff4b6e", bg: "linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%)" },
@@ -23,7 +49,8 @@ const themes = [
 window.addEventListener("load", function() {
     initClock();
     initTheme();
-    getAntalyaWeather(); // Direkt Antalya hava durumu
+    getAntalyaWeather(); // Hava Durumunu Başlat
+    checkUpdates(); // Güncellemeleri Kontrol Et
     
     setTimeout(function() {
         document.getElementById("loading-screen").style.opacity = "0";
@@ -44,28 +71,47 @@ window.addEventListener("load", function() {
     }, 3000); 
 });
 
-/* --- SADECE ANTALYA HAVA DURUMU --- */
+/* --- ANTALYA HAVA DURUMU (GitHub Fix + 20 Derece Kuralı) --- */
 function getAntalyaWeather() {
     const wIcon = document.getElementById('w-icon');
     const wTemp = document.getElementById('w-temp');
+    const wMsg = document.getElementById('w-msg');
 
+    // Antalya Koordinatları
     const lat = 36.8841;
     const lon = 30.7056;
     
+    // HTTPS protokolü kullanıyoruz, GitHub'da sorun çıkmaz
     fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw new Error('Hava durumu alınamadı');
+            return response.json();
+        })
         .then(data => {
             const temp = Math.round(data.current_weather.temperature);
             const code = data.current_weather.weathercode;
             
+            // İkon Seçimi
             if(code <= 3) wIcon.className = "fa-solid fa-sun";
             else if(code > 3 && code < 50) wIcon.className = "fa-solid fa-cloud";
             else if(code >= 50) wIcon.className = "fa-solid fa-cloud-rain";
             
             wTemp.innerText = `Antalya ${temp}°C`;
+
+            // --- SICAKLIK MANTIĞI (20 DERECE SINIR) ---
+            if (temp <= 20) {
+                wMsg.innerText = "Sıkı giyin güzelim, üşüme 🧥";
+            } else if (temp > 20 && temp < 28) {
+                wMsg.innerText = "Hava güzel, tadını çıkar ⛅";
+            } else {
+                wMsg.innerText = "Çok sıcak, bol su iç 💧";
+            }
         })
         .catch(err => {
+            console.log("Hava Durumu Hatası:", err);
             wTemp.innerText = "Antalya"; 
+            // Hata olursa mesajı gizlemek yerine tatlı bir şey yazalım
+            wMsg.innerText = "Seninle hava hep güzel ☀️"; 
         });
 }
 
@@ -157,7 +203,6 @@ function toggleMenu() {
 function openMsgModal() { toggleMenu(); document.getElementById('msg-modal').classList.remove('hidden'); }
 function closeMsgModal() { document.getElementById('msg-modal').classList.add('hidden'); }
 
-// BİLGİ PENCERESİ İÇİN
 function openInfoModal() { toggleMenu(); document.getElementById('info-modal').classList.remove('hidden'); }
 function closeInfoModal() { document.getElementById('info-modal').classList.add('hidden'); }
 
@@ -165,7 +210,7 @@ function closeInfoModal() { document.getElementById('info-modal').classList.add(
 document.getElementById('sendMsg').onclick = () => {
     const msgInput = document.getElementById('messageText');
     const msg = msgInput.value.trim();
-    if(!msg) { alert('Boş mesaj mı? 🥺'); return; }
+    if(!msg) { alert('Boş mesaj mı? :('); return; }
     
     const btn = document.getElementById('sendMsg');
     btn.innerText = "Gönderiliyor..."; btn.disabled = true;

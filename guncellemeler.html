@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neler Yeni? 🚀</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+
+        .back-btn {
+            position: fixed; top: 20px; left: 20px;
+            font-size: 1.5rem; color: #ff4b6e;
+            z-index: 100; cursor: pointer; text-decoration: none;
+            background: white; width: 45px; height: 45px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: 0.2s;
+        }
+        .back-btn:active { transform: scale(0.9); }
+
+        .header { margin-bottom: 40px; }
+        .header h1 { color: #333; font-size: 2rem; margin-bottom: 5px; }
+        .header p { color: #777; font-size: 1rem; }
+
+        .timeline {
+            border-left: 3px solid #e0e0e0;
+            padding-left: 30px;
+            margin-left: 10px;
+            position: relative;
+        }
+
+        .update-card {
+            position: relative;
+            margin-bottom: 40px;
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+        .update-card::before {
+            content: '';
+            position: absolute; left: -38px; top: 25px;
+            width: 16px; height: 16px;
+            background: #fff;
+            border: 4px solid #ddd;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        /* LATEST STİLİ */
+        .update-card.latest {
+            border: 2px solid #ff4b6e;
+            background: linear-gradient(to bottom right, #fff, #fff0f5);
+        }
+        .update-card.latest::before {
+            border-color: #ff4b6e;
+            background: #ff4b6e;
+            box-shadow: 0 0 0 4px #ffccd5;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: #eee; color: #555;
+            padding: 5px 10px; border-radius: 8px;
+            font-size: 0.8rem; font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .latest .version-badge { background: #ff4b6e; color: white; }
+
+        .date { float: right; font-size: 0.85rem; color: #999; margin-top: 5px; }
+        .card-title { font-size: 1.3rem; font-weight: 700; color: #333; margin-bottom: 15px; display: block; }
+
+        ul { padding-left: 20px; margin: 0; }
+        li { color: #555; font-size: 0.95rem; margin-bottom: 8px; line-height: 1.5; list-style-type: none; position: relative; }
+        li::before { content: '•'; color: #ff4b6e; font-weight: bold; position: absolute; left: -15px; }
+
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+
+    <div class="header">
+        <h1>Gelişim Günlüğü 🚀</h1>
+        <p>Senin için her gün daha iyisi...</p>
+    </div>
+
+    <div class="timeline">
+
+        <div class="update-card latest">
+            <span class="version-badge">v1.0 - BAŞLANGIÇ</span>
+            <span class="date">Bugün</span>
+            <span class="card-title">Sitemiz Açıldı ❤️</span>
+            <ul>
+                <li> Proje senin için hayata geçirildiii</li>
+                <li> Sayacımız sonsuza kadar akıyor..</li>
+                <li> Arka plan müziği eklendi.</li>
+                <li> Sana özel tema tasarlandı.</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        // SAYFA AÇILINCA BİLDİRİMİ TEMİZLE
+        // Buradaki versiyon numarası ile script.js'deki numara AYNI olmalı.
+        window.onload = function() {
+            const CURRENT_VERSION = "1.0"; 
+            localStorage.setItem('lastSeenVersion', CURRENT_VERSION);
+        };
+    </script>
+
+</body>
+</html>

@@ -35,13 +35,14 @@
                     <i id="w-icon" class="fa-solid fa-cloud-sun"></i>
                     <span id="w-temp">..</span>
                 </div>
-                <p id="w-msg" class="weather-message">Hesaplanıyor...</p>
+                <p id="w-msg" class="weather-message">Yükleniyor...</p>
             </div>
             <div class="clock-info" id="live-clock">00:00</div>
         </div>
 
         <div class="menu-btn" onclick="toggleMenu()">
             <i class="fa-solid fa-bars"></i>
+            <span id="menu-notification-dot" class="notification-dot" style="top: 0; right: 0; display: none;"></span>
         </div>
 
         <div id="sidebar-overlay" onclick="toggleMenu()"></div>
@@ -57,11 +58,6 @@
                     <span>Biliyor muydun?</span>
                 </a>
                 
-                <a href="cicek.html" class="menu-item">
-                    <i class="fa-solid fa-bouquet"></i>
-                    <span>Günün Çiçeği 🌸</span>
-                </a>
-
                 <a href="reasons.html" class="menu-item">
                     <i class="fa-solid fa-star"></i>
                     <span>Çokkkk Güzelsinnnn</span>
@@ -71,25 +67,21 @@
                     <i class="fa-solid fa-wind"></i>
                     <span>Dilek Feneri 🏮</span>
                 </a>
+                <a href="snake.html" class="menu-item">
+                    <i class="fa-solid fa-bouquet"></i>
+                    <span>Yılan oyunu</span>
+                </a>
+
+                <a href="cicek.html" class="menu-item">
+                    <i class="fa-solid fa-bouquet"></i>
+                    <span>Günün Çiçeği 🌸</span>
+                </a>
 
                 <a href="yapilacaklar.html" class="menu-item">
                     <i class="fa-solid fa-clipboard-list"></i>
                     <span>Yapılacaklar Listesi 📝</span>
                 </a>
-
-                <a href="snake.html" class="menu-item">
-                    <i class="fa-solid fa-worm"></i>
-                    <span>Kalp Avcısı🐍</span>
-                </a>
-                <a href="ozledim.html" class="menu-item">
-                    <i class="fa-solid fa-heart-pulse"></i>
-                    <span>Seni Özledim ❤️</span>
-                </a>
-                <a href="sonsuzluk.html" class="menu-item" style="border: 1px solid #ff4b6e; background: #fff0f3;">
-                    <i class="fa-solid fa-infinity"></i>
-                    <span>Seni bu kadaar seviyorum♾️</span>
-                </a>
-
+           
                 <div class="menu-item" onclick="openInfoModal()">
                     <i class="fa-solid fa-circle-info"></i>
                     <span>Bu Site Hakkında</span>
@@ -99,6 +91,12 @@
                     <i class="fa-solid fa-paper-plane"></i>
                     <span>Mesaj Gönder</span>
                 </div>
+
+                <a href="guncellemeler.html" class="menu-item" onclick="markUpdatesRead()" style="background: #f0f8ff; border: 1px solid #bcdfff; position: relative;">
+                    <i class="fa-solid fa-rocket"></i>
+                    <span>Neler Yeni? 🚀</span>
+                    <span id="update-dot" class="notification-dot" style="display: none;"></span>
+                </a>
             </div>
             
             <p class="menu-footer">Seni Seviyorum...</p>

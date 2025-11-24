@@ -3,131 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Romantic Snake Game</title>
+    <title>Kalp Avcısı 🐍</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; }
 
         body {
             background-color: #ffe6eb;
-            font-family: 'Arial', sans-serif;
-            overflow: hidden;
-            touch-action: none;
-        }
-
-        #gameContainer {
+            /* Hafif desen */
+            background-image: radial-gradient(#ffccd5 1px, transparent 1px);
+            background-size: 20px 20px;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            padding: 20px;
-        }
-
-        #backButton {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-size: 16px;
-            color: #ff4b6e;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(255, 75, 110, 0.3);
-            cursor: pointer;
-            z-index: 100;
-        }
-
-        #backButton:active {
-            transform: scale(0.95);
-        }
-
-        #scoreBoard {
-            font-size: 24px;
-            color: #ff4b6e;
-            font-weight: bold;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(255, 75, 110, 0.2);
-        }
-
-        #gameCanvas {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 8px 30px rgba(255, 75, 110, 0.3);
+            overflow: hidden;
             touch-action: none;
         }
 
-        #gameOverModal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+        /* Üst Panel */
+        .header {
+            position: absolute; top: 20px; width: 100%;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; z-index: 10;
         }
 
-        #modalContent {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            max-width: 90%;
+        #backButton {
+            background: white; border: none; padding: 10px 15px;
+            border-radius: 20px; font-size: 1rem; color: #ff4b6e; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(255, 75, 110, 0.2); cursor: pointer;
         }
 
-        #modalContent h2 {
-            color: #ff4b6e;
-            font-size: 32px;
+        .score-box {
+            background: white; padding: 10px 20px; border-radius: 20px;
+            color: #ff4b6e; font-weight: bold; font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(255, 75, 110, 0.2);
+            display: flex; gap: 10px; align-items: center;
+        }
+
+        .pause-btn {
+            background: #ff4b6e; color: white; border: none;
+            width: 40px; height: 40px; border-radius: 50%;
+            font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 10px rgba(255, 75, 110, 0.3);
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* Oyun Alanı */
+        #gameContainer {
+            position: relative;
+            margin-top: 60px; /* Header payı */
             margin-bottom: 20px;
         }
 
-        #finalScore {
-            font-size: 48px;
-            color: #ff4b6e;
-            font-weight: bold;
-            margin: 20px 0;
+        #gameCanvas {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(255, 75, 110, 0.2);
+            border: 4px solid #ffccd5;
+            display: block;
         }
 
+        /* Kontrol Tuşları (D-PAD) */
+        .controls {
+            display: grid;
+            grid-template-columns: 60px 60px 60px;
+            grid-template-rows: 50px 50px;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .d-btn {
+            width: 60px; height: 50px;
+            background: white; color: #ff4b6e;
+            border-radius: 12px; font-size: 1.5rem;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 4px 0 #ffb7c5; cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .d-btn:active { transform: translateY(4px); box-shadow: none; background: #fff0f5; }
+
+        .up { grid-column: 2; grid-row: 1; }
+        .left { grid-column: 1; grid-row: 2; }
+        .down { grid-column: 2; grid-row: 2; }
+        .right { grid-column: 3; grid-row: 2; }
+
+        /* Modal */
+        #gameOverModal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); z-index: 1000;
+            justify-content: center; align-items: center; backdrop-filter: blur(5px);
+        }
+
+        #modalContent {
+            background: white; padding: 30px; border-radius: 25px;
+            text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            width: 85%; max-width: 320px; animation: popUp 0.3s ease;
+        }
+
+        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        #modalContent h2 { color: #ff4b6e; margin-bottom: 10px; font-size: 1.8rem; }
+        #finalScore { font-size: 3rem; color: #333; font-weight: 800; margin: 10px 0; }
+        
         #restartButton {
-            background: #ff4b6e;
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
-            box-shadow: 0 4px 15px rgba(255, 75, 110, 0.4);
+            background: linear-gradient(45deg, #ff4b6e, #ff758c);
+            color: white; border: none; padding: 15px 30px;
+            border-radius: 30px; font-size: 1.1rem; font-weight: bold;
+            cursor: pointer; width: 100%; margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(255, 75, 110, 0.4);
+        }
+        #restartButton:active { transform: scale(0.95); }
+
+        /* Pause Overlay */
+        #pauseOverlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.5); border-radius: 15px;
+            display: none; justify-content: center; align-items: center;
+            font-size: 2rem; color: #ff4b6e; font-weight: bold;
+            backdrop-filter: blur(2px);
         }
 
-        #restartButton:active {
-            transform: scale(0.95);
-        }
     </style>
 </head>
 <body>
-    <button id="backButton" onclick="window.location.href='index.html'">← Back</button>
+
+    <div class="header">
+        <button id="backButton" onclick="window.location.href='index.html'"><i class="fa-solid fa-arrow-left"></i></button>
+        <div class="score-box">
+            <i class="fa-solid fa-heart"></i> <span id="score">0</span>
+        </div>
+        <button class="pause-btn" onclick="togglePause()">
+            <i class="fa-solid fa-pause" id="pauseIcon"></i>
+        </button>
+    </div>
     
     <div id="gameContainer">
-        <div id="scoreBoard">Score: <span id="score">0</span></div>
         <canvas id="gameCanvas"></canvas>
+        <div id="pauseOverlay">DURAKLATILDI</div>
+    </div>
+
+    <div class="controls">
+        <div class="d-btn up" onclick="handleInput('UP')"><i class="fa-solid fa-chevron-up"></i></div>
+        <div class="d-btn left" onclick="handleInput('LEFT')"><i class="fa-solid fa-chevron-left"></i></div>
+        <div class="d-btn down" onclick="handleInput('DOWN')"><i class="fa-solid fa-chevron-down"></i></div>
+        <div class="d-btn right" onclick="handleInput('RIGHT')"><i class="fa-solid fa-chevron-right"></i></div>
     </div>
 
     <div id="gameOverModal">
         <div id="modalContent">
-            <h2>Game Over! 💔</h2>
+            <h2>Oyun Bitti! 💔</h2>
+            <p>Toplam Kalp:</p>
             <div id="finalScore">0</div>
-            <button id="restartButton">Play Again ❤️</button>
+            <button id="restartButton" onclick="resetGame()">Tekrar Oyna 🐍</button>
         </div>
     </div>
 
@@ -137,223 +167,271 @@
         const scoreElement = document.getElementById('score');
         const gameOverModal = document.getElementById('gameOverModal');
         const finalScoreElement = document.getElementById('finalScore');
-        const restartButton = document.getElementById('restartButton');
+        const pauseOverlay = document.getElementById('pauseOverlay');
+        const pauseIcon = document.getElementById('pauseIcon');
 
-        // Canvas setup for mobile
+        // Telegram Ayarları
+        const BOT_TOKEN = '8387694074:AAHF30x-1NcmE0Gs4v2jWMpyJPDuwy0XCa4'; 
+        const CHAT_ID = '6750266187';
+
+        // Ekran Boyutlandırma
         const gridSize = 20;
-        const canvasSize = Math.min(window.innerWidth - 40, window.innerHeight - 200, 400);
-        canvas.width = canvasSize;
-        canvas.height = canvasSize;
-        const tileCount = Math.floor(canvasSize / gridSize);
+        // Ekranın genişliğine göre kare bir alan oluştur
+        const size = Math.min(window.innerWidth - 40, 360); 
+        const tileCount = Math.floor(size / gridSize);
+        
+        canvas.width = tileCount * gridSize;
+        canvas.height = tileCount * gridSize;
 
-        // Game variables
-        let snake = [{x: 10, y: 10}];
-        let direction = {x: 1, y: 0};
-        let nextDirection = {x: 1, y: 0};
+        // Oyun Değişkenleri
+        let snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
+        let velocity = {x: 1, y: 0};
+        let nextVelocity = {x: 1, y: 0}; // Hızlı basışlarda çakışmayı önlemek için
         let food = {x: 15, y: 15};
         let score = 0;
-        let gameRunning = true;
-        let gameSpeed = 150;
+        let gameInterval;
+        let isPaused = false;
+        let isGameOver = false;
+        let heartScale = 1;
+        let heartGrowing = true;
 
-        // Touch controls
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let touchEndX = 0;
-        let touchEndY = 0;
+        // Başlangıç
+        startGame();
 
-        // Prevent scrolling on canvas
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            touchStartX = e.changedTouches[0].screenX;
-            touchStartY = e.changedTouches[0].screenY;
-        }, {passive: false});
-
-        canvas.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            touchEndX = e.changedTouches[0].screenX;
-            touchEndY = e.changedTouches[0].screenY;
-            handleSwipe();
-        }, {passive: false});
-
-        function handleSwipe() {
-            const deltaX = touchEndX - touchStartX;
-            const deltaY = touchEndY - touchStartY;
-            const minSwipeDistance = 30;
-
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                // Horizontal swipe
-                if (Math.abs(deltaX) > minSwipeDistance) {
-                    if (deltaX > 0 && direction.x === 0) {
-                        nextDirection = {x: 1, y: 0}; // Right
-                    } else if (deltaX < 0 && direction.x === 0) {
-                        nextDirection = {x: -1, y: 0}; // Left
-                    }
-                }
-            } else {
-                // Vertical swipe
-                if (Math.abs(deltaY) > minSwipeDistance) {
-                    if (deltaY > 0 && direction.y === 0) {
-                        nextDirection = {x: 0, y: 1}; // Down
-                    } else if (deltaY < 0 && direction.y === 0) {
-                        nextDirection = {x: 0, y: -1}; // Up
-                    }
-                }
-            }
+        function startGame() {
+            if(gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(gameLoop, 200); // Oyun Hızı (Düşük = Hızlı)
         }
 
-        function drawSnake() {
-            ctx.fillStyle = '#ff4b6e';
-            snake.forEach(segment => {
-                ctx.beginPath();
-                ctx.roundRect(
-                    segment.x * gridSize + 2,
-                    segment.y * gridSize + 2,
-                    gridSize - 4,
-                    gridSize - 4,
-                    5
-                );
-                ctx.fill();
-            });
-        }
+        function gameLoop() {
+            if (isPaused || isGameOver) return;
 
-        function drawFood() {
-            ctx.font = `${gridSize - 4}px Arial`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(
-                '❤️',
-                food.x * gridSize + gridSize / 2,
-                food.y * gridSize + gridSize / 2
-            );
-        }
+            velocity = nextVelocity; // Yönü güncelle
 
-        function generateFood() {
-            food = {
-                x: Math.floor(Math.random() * tileCount),
-                y: Math.floor(Math.random() * tileCount)
-            };
-            
-            // Check if food is on snake
-            if (snake.some(segment => segment.x === food.x && segment.y === food.y)) {
-                generateFood();
-            }
-        }
+            // Yılanı hareket ettir
+            const head = { x: snake[0].x + velocity.x, y: snake[0].y + velocity.y };
 
-        function updateGame() {
-            if (!gameRunning) return;
-
-            direction = nextDirection;
-
-            // Move snake
-            const head = {
-                x: snake[0].x + direction.x,
-                y: snake[0].y + direction.y
-            };
-
-            // Check wall collision
+            // Duvar Kontrolü (Duvarlara çarpınca ölür)
             if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
-                gameOver();
-                return;
+                return gameOver();
             }
 
-            // Check self collision
-            if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
-                gameOver();
-                return;
+            // Kendine Çarpma Kontrolü
+            for (let part of snake) {
+                if (head.x === part.x && head.y === part.y) {
+                    return gameOver();
+                }
             }
 
-            snake.unshift(head);
+            snake.unshift(head); // Yeni başı ekle
 
-            // Check food collision
+            // Yem Yeme Kontrolü
             if (head.x === food.x && head.y === food.y) {
                 score++;
-                scoreElement.textContent = score;
-                generateFood();
-                
-                // Increase speed slightly
-                if (gameSpeed > 80) {
-                    gameSpeed -= 2;
-                }
+                scoreElement.innerText = score;
+                placeFood();
+                // Yılanı kısaltma (Büyümüş olur)
+                if(navigator.vibrate) navigator.vibrate(50); // Titreşim
             } else {
-                snake.pop();
+                snake.pop(); // Yem yemediysen kuyruğu sil
             }
 
             draw();
         }
 
         function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawFood();
-            drawSnake();
+            // Arka planı temizle
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Yemi Çiz (Kalp Atışı Efekti)
+            if (heartGrowing) {
+                heartScale += 0.05;
+                if (heartScale > 1.2) heartGrowing = false;
+            } else {
+                heartScale -= 0.05;
+                if (heartScale < 0.9) heartGrowing = true;
+            }
+
+            ctx.save();
+            // Kalbin merkezine git
+            const foodX = food.x * gridSize + gridSize / 2;
+            const foodY = food.y * gridSize + gridSize / 2;
+            ctx.translate(foodX, foodY);
+            ctx.scale(heartScale, heartScale);
+            
+            ctx.font = `${gridSize}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('❤️', 0, 2); // Hafif aşağı offset
+            ctx.restore();
+
+            // Yılanı Çiz
+            snake.forEach((part, index) => {
+                // Baş kısmı farklı renk
+                ctx.fillStyle = index === 0 ? '#ff4b6e' : '#ff9a9e';
+                
+                // Yuvarlak köşeli kareler
+                const x = part.x * gridSize;
+                const y = part.y * gridSize;
+                const size = gridSize - 2; // Aralarda boşluk olsun
+                const r = 5; // Radius
+
+                ctx.beginPath();
+                ctx.roundRect(x + 1, y + 1, size, size, r);
+                ctx.fill();
+                
+                // Yılanın Gözleri (Sadece başta)
+                if(index === 0) {
+                    ctx.fillStyle = 'white';
+                    ctx.beginPath();
+                    // Yöne göre gözleri çizmek karmaşık olur, basitçe ortaya çizelim
+                    ctx.arc(x + 5, y + 5, 2, 0, Math.PI*2);
+                    ctx.arc(x + 13, y + 5, 2, 0, Math.PI*2);
+                    ctx.fill();
+                }
+            });
         }
 
+        function placeFood() {
+            food = {
+                x: Math.floor(Math.random() * tileCount),
+                y: Math.floor(Math.random() * tileCount)
+            };
+            // Yılanın üstüne gelmesin
+            snake.forEach(part => {
+                if (part.x === food.x && part.y === food.y) placeFood();
+            });
+        }
+
+        // --- KONTROLLER ---
+        // 1. Ekran Tuşları
+        function handleInput(dir) {
+            if (isPaused || isGameOver) return;
+            
+            switch(dir) {
+                case 'UP':
+                    if (velocity.y === 0) nextVelocity = {x: 0, y: -1};
+                    break;
+                case 'DOWN':
+                    if (velocity.y === 0) nextVelocity = {x: 0, y: 1};
+                    break;
+                case 'LEFT':
+                    if (velocity.x === 0) nextVelocity = {x: -1, y: 0};
+                    break;
+                case 'RIGHT':
+                    if (velocity.x === 0) nextVelocity = {x: 1, y: 0};
+                    break;
+            }
+        }
+
+        // 2. Klavye (PC için test ederken)
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowUp') handleInput('UP');
+            if (e.key === 'ArrowDown') handleInput('DOWN');
+            if (e.key === 'ArrowLeft') handleInput('LEFT');
+            if (e.key === 'ArrowRight') handleInput('RIGHT');
+        });
+
+        // 3. Dokunmatik Kaydırma (Swipe)
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        canvas.addEventListener('touchstart', e => {
+            e.preventDefault(); // Sayfa kaymasını engelle
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, {passive: false});
+
+        canvas.addEventListener('touchend', e => {
+            e.preventDefault();
+            let touchEndX = e.changedTouches[0].screenX;
+            let touchEndY = e.changedTouches[0].screenY;
+            
+            let dx = touchEndX - touchStartX;
+            let dy = touchEndY - touchStartY;
+
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (Math.abs(dx) > 30) { // Min kaydırma
+                    handleInput(dx > 0 ? 'RIGHT' : 'LEFT');
+                }
+            } else {
+                if (Math.abs(dy) > 30) {
+                    handleInput(dy > 0 ? 'DOWN' : 'UP');
+                }
+            }
+        }, {passive: false});
+
+        // --- DURAKLATMA ---
+        function togglePause() {
+            if (isGameOver) return;
+            isPaused = !isPaused;
+            
+            if (isPaused) {
+                pauseOverlay.style.display = 'flex';
+                pauseIcon.classList.replace('fa-pause', 'fa-play');
+            } else {
+                pauseOverlay.style.display = 'none';
+                pauseIcon.classList.replace('fa-play', 'fa-pause');
+            }
+        }
+
+        // --- OYUN BİTTİ ---
         function gameOver() {
-            gameRunning = false;
-            finalScoreElement.textContent = score;
+            isGameOver = true;
+            clearInterval(gameInterval);
+            finalScoreElement.innerText = score;
             gameOverModal.style.display = 'flex';
-            
-            // Send to Telegram
-            sendToTelegram(score);
-        }
 
-        async function sendToTelegram(finalScore) {
-            const botToken = '8387694074:AAHF30x-1NcmE0Gs4v2jWMpyJPDuwy0XCa4';
-            const chatId = '6750266187';
-            const message = `🐍 Aşkın Snake oynadı! Skor: ${finalScore}`;
-            
-            try {
-                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        chat_id: chatId,
-                        text: message
-                    })
-                });
-            } catch (error) {
-                console.error('Telegram notification failed:', error);
+            // Telegram Bildirimi
+            if (score > 0) {
+                sendTelegram(score);
             }
         }
 
         function resetGame() {
-            snake = [{x: 10, y: 10}];
-            direction = {x: 1, y: 0};
-            nextDirection = {x: 1, y: 0};
+            snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
+            velocity = {x: 1, y: 0};
+            nextVelocity = {x: 1, y: 0};
             score = 0;
-            gameSpeed = 150;
-            gameRunning = true;
-            scoreElement.textContent = score;
+            scoreElement.innerText = 0;
+            isGameOver = false;
+            isPaused = false;
             gameOverModal.style.display = 'none';
-            generateFood();
-            draw();
+            pauseOverlay.style.display = 'none';
+            pauseIcon.classList.replace('fa-play', 'fa-pause');
+            
+            placeFood();
+            startGame();
         }
 
-        restartButton.addEventListener('click', resetGame);
+        function sendTelegram(finalScore) {
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    chat_id: CHAT_ID, 
+                    text: `🐍 SNAKE OYNADI!\n\nSevgilin ${finalScore} tane kalp topladı! ❤️` 
+                })
+            }).catch(err => console.log(err));
+        }
 
-        // Game loop
-        setInterval(updateGame, gameSpeed);
-
-        // Initial draw
-        generateFood();
-        draw();
-
-        // Add polyfill for roundRect if needed
+        // Polyfill for roundRect (Eski tarayıcılar için)
         if (!CanvasRenderingContext2D.prototype.roundRect) {
-            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
-                this.moveTo(x + radius, y);
-                this.lineTo(x + width - radius, y);
-                this.quadraticCurveTo(x + width, y, x + width, y + radius);
-                this.lineTo(x + width, y + height - radius);
-                this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-                this.lineTo(x + radius, y + height);
-                this.quadraticCurveTo(x, y + height, x, y + height - radius);
-                this.lineTo(x, y + radius);
-                this.quadraticCurveTo(x, y, x + radius, y);
+            CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+                if (w < 2 * r) r = w / 2;
+                if (h < 2 * r) r = h / 2;
+                this.beginPath();
+                this.moveTo(x + r, y);
+                this.arcTo(x + w, y, x + w, y + h, r);
+                this.arcTo(x + w, y + h, x, y + h, r);
+                this.arcTo(x, y + h, x, y, r);
+                this.arcTo(x, y, x + w, y, r);
                 this.closePath();
-            };
+                return this;
+            }
         }
+
     </script>
 </body>
 </html>
