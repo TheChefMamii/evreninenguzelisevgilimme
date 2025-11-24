@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Özlem Sayacı ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; }
+        
+        body {
+            background-color: #ffe6eb;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .back-btn {
+            position: fixed; top: 20px; left: 20px;
+            font-size: 1.5rem; color: #ff4b6e;
+            z-index: 100; cursor: pointer; text-decoration: none;
+            background: white; width: 40px; height: 40px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { color: #ff4b6e; margin: 0; font-size: 2rem; }
+        .header p { color: #888; font-size: 0.9rem; }
+
+        /* KALP ALANI */
+        .hearts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .heart-box {
+            text-align: center;
+            position: relative;
+        }
+
+        .heart-btn {
+            font-size: 5rem;
+            color: #ffccd5; /* Pasif renk */
+            cursor: pointer;
+            transition: transform 0.1s, color 0.3s;
+            filter: drop-shadow(0 10px 15px rgba(255, 75, 110, 0.2));
+            background: none; border: none;
+        }
+
+        /* Aktif olunca parlasın */
+        .heart-btn.active-role {
+            color: #ff4b6e; /* Canlı renk */
+            animation: heartbeat 1.5s infinite;
+            cursor: pointer;
+        }
+        .heart-btn.active-role:active { transform: scale(0.9); }
+
+        /* Pasif olunca grileşsin */
+        .heart-btn.disabled {
+            color: #eee;
+            cursor: not-allowed;
+            filter: none;
+        }
+
+        .count {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #555;
+            margin-top: 10px;
+            display: block;
+        }
+
+        .label {
+            font-size: 0.9rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* Tıklama Efekti (Küçük kalpler) */
+        .click-heart {
+            position: absolute;
+            color: #ff4b6e;
+            font-size: 1.5rem;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.1); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.1); }
+            60% { transform: scale(1); }
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+        }
+
+        /* Kilit İkonu */
+        .lock-icon {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem; color: #aaa;
+            display: none;
+        }
+        .disabled .lock-icon { display: block; }
+
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+
+    <div class="header">
+        <h1>Özlem Duvarı ❤️</h1>
+        <p>Kalbine dokun, hissetsin...</p>
+    </div>
+
+    <div class="hearts-container">
+        
+        <div class="heart-box">
+            <span class="label">ERKEK TARAFI</span>
+            <div style="position:relative">
+                <button id="boy-heart" class="heart-btn" onclick="clickHeart('boy')">
+                    <i class="fa-solid fa-heart"></i>
+                </button>
+                <i class="fa-solid fa-lock lock-icon" id="boy-lock"></i>
+            </div>
+            <span class="count" id="boy-count">0</span>
+        </div>
+
+        <div class="heart-box">
+            <span class="label">KIZ TARAFI</span>
+            <div style="position:relative">
+                <button id="girl-heart" class="heart-btn" onclick="clickHeart('girl')">
+                    <i class="fa-solid fa-heart"></i>
+                </button>
+                <i class="fa-solid fa-lock lock-icon" id="girl-lock"></i>
+            </div>
+            <span class="count" id="girl-count">0</span>
+        </div>
+
+    </div>
+
+    <audio id="pop-sound" src="https://www.soundjay.com/button/sounds/button-3.mp3"></audio>
+
+    <script>
+        // --- AYARLAR ---
+        const gun = Gun(['https://gun-manhattan.herokuapp.com/gun', 'https://gun-us.herokuapp.com/gun']);
+        const missNode = gun.get('bizim-ozlem-sayaci-v1'); 
+
+        const BOT_TOKEN = '8387694074:AAHF30x-1NcmE0Gs4v2jWMpyJPDuwy0XCa4'; 
+        const CHAT_ID = '6750266187';
+
+        // --- KİMLİK KONTROLÜ ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const isBoyfriend = urlParams.get('mode') === 'a923';
+
+        // Elementler
+        const boyHeart = document.getElementById('boy-heart');
+        const girlHeart = document.getElementById('girl-heart');
+        const boyCountEl = document.getElementById('boy-count');
+        const girlCountEl = document.getElementById('girl-count');
+        const boyLock = document.getElementById('boy-lock');
+        const girlLock = document.getElementById('girl-lock');
+
+        // --- GÖRÜNÜM AYARLARI ---
+        if (isBoyfriend) {
+            // Sen Adminsin: Kendi kalbine basabilirsin, onunkine basamazsın
+            boyHeart.classList.add('active-role');
+            girlHeart.classList.add('disabled');
+            girlLock.style.display = 'block'; // Kilit ikonu
+        } else {
+            // O Kız Arkadaş: Sadece kendi kalbine basabilir
+            girlHeart.classList.add('active-role');
+            boyHeart.classList.add('disabled');
+            boyLock.style.display = 'block'; // Kilit ikonu
+        }
+
+        // --- VERİLERİ ÇEK ---
+        let counts = { boy: 0, girl: 0 };
+
+        missNode.on((data) => {
+            if(data) {
+                counts.boy = data.boy || 0;
+                counts.girl = data.girl || 0;
+                // Animasyonlu sayı artışı
+                animateValue(boyCountEl, parseInt(boyCountEl.innerText), counts.boy, 500);
+                animateValue(girlCountEl, parseInt(girlCountEl.innerText), counts.girl, 500);
+            }
+        });
+
+        // --- TIKLAMA MANTIĞI ---
+        let clickTimeout; // Bildirim geciktirici
+
+        function clickHeart(role) {
+            // Yetki Kontrolü
+            if (role === 'boy' && !isBoyfriend) return shake(boyHeart); // Yetkisiz
+            if (role === 'girl' && isBoyfriend) return shake(girlHeart); // Yetkisiz
+
+            // Sayıyı Artır
+            counts[role]++;
+            missNode.put({ [role]: counts[role] });
+
+            // Görsel Efekt
+            createFloatingHeart(role === 'boy' ? boyHeart : girlHeart);
+            
+            // Ses (Opsiyonel, tarayıcı izin verirse)
+            const audio = document.getElementById("pop-sound");
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
+
+            // --- TELEGRAM BİLDİRİMİ (Debounce) ---
+            // Sadece Kız Arkadaş basarsa sana bildirim gelsin
+            if (role === 'girl' && !isBoyfriend) {
+                clearTimeout(clickTimeout); // Önceki sayacı iptal et
+                
+                // 4 Saniye bekle, eğer başka basma olmazsa gönder
+                clickTimeout = setTimeout(() => {
+                    sendTelegram(counts.girl);
+                }, 4000);
+            }
+        }
+
+        function sendTelegram(totalCount) {
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    chat_id: CHAT_ID, 
+                    text: `🚨 ÖZLEM UYARISI!\n\nSevgilin "Seni Özledim" butonuna abandı.\n\nToplam Basış: ${totalCount} ❤️\n\n(Hemen siteye girip karşılık ver!)` 
+                })
+            }).catch(console.error);
+        }
+
+        // --- YARDIMCI EFEKTLER ---
+        function createFloatingHeart(btn) {
+            const heart = document.createElement('div');
+            heart.classList.add('click-heart');
+            heart.innerHTML = '❤️';
+            
+            // Konumlandırma
+            const rect = btn.getBoundingClientRect();
+            heart.style.left = (rect.left + rect.width / 2 - 10) + 'px';
+            heart.style.top = (rect.top) + 'px';
+            
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 1000);
+        }
+
+        function shake(element) {
+            element.style.transform = "translateX(5px)";
+            setTimeout(() => element.style.transform = "translateX(-5px)", 50);
+            setTimeout(() => element.style.transform = "translateX(5px)", 100);
+            setTimeout(() => element.style.transform = "translateX(0)", 150);
+        }
+
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+    </script>
+
+</body>
+</html>

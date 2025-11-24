@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Romantic Snake Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #ffe6eb;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #gameContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        #backButton {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            color: #ff4b6e;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(255, 75, 110, 0.3);
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        #backButton:active {
+            transform: scale(0.95);
+        }
+
+        #scoreBoard {
+            font-size: 24px;
+            color: #ff4b6e;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(255, 75, 110, 0.2);
+        }
+
+        #gameCanvas {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(255, 75, 110, 0.3);
+            touch-action: none;
+        }
+
+        #gameOverModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #modalContent {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 90%;
+        }
+
+        #modalContent h2 {
+            color: #ff4b6e;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        #finalScore {
+            font-size: 48px;
+            color: #ff4b6e;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        #restartButton {
+            background: #ff4b6e;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(255, 75, 110, 0.4);
+        }
+
+        #restartButton:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <button id="backButton" onclick="window.location.href='index.html'">← Back</button>
+    
+    <div id="gameContainer">
+        <div id="scoreBoard">Score: <span id="score">0</span></div>
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <div id="gameOverModal">
+        <div id="modalContent">
+            <h2>Game Over! 💔</h2>
+            <div id="finalScore">0</div>
+            <button id="restartButton">Play Again ❤️</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const gameOverModal = document.getElementById('gameOverModal');
+        const finalScoreElement = document.getElementById('finalScore');
+        const restartButton = document.getElementById('restartButton');
+
+        // Canvas setup for mobile
+        const gridSize = 20;
+        const canvasSize = Math.min(window.innerWidth - 40, window.innerHeight - 200, 400);
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
+        const tileCount = Math.floor(canvasSize / gridSize);
+
+        // Game variables
+        let snake = [{x: 10, y: 10}];
+        let direction = {x: 1, y: 0};
+        let nextDirection = {x: 1, y: 0};
+        let food = {x: 15, y: 15};
+        let score = 0;
+        let gameRunning = true;
+        let gameSpeed = 150;
+
+        // Touch controls
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+
+        // Prevent scrolling on canvas
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, {passive: false});
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        }, {passive: false});
+
+        function handleSwipe() {
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            const minSwipeDistance = 30;
+
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                // Horizontal swipe
+                if (Math.abs(deltaX) > minSwipeDistance) {
+                    if (deltaX > 0 && direction.x === 0) {
+                        nextDirection = {x: 1, y: 0}; // Right
+                    } else if (deltaX < 0 && direction.x === 0) {
+                        nextDirection = {x: -1, y: 0}; // Left
+                    }
+                }
+            } else {
+                // Vertical swipe
+                if (Math.abs(deltaY) > minSwipeDistance) {
+                    if (deltaY > 0 && direction.y === 0) {
+                        nextDirection = {x: 0, y: 1}; // Down
+                    } else if (deltaY < 0 && direction.y === 0) {
+                        nextDirection = {x: 0, y: -1}; // Up
+                    }
+                }
+            }
+        }
+
+        function drawSnake() {
+            ctx.fillStyle = '#ff4b6e';
+            snake.forEach(segment => {
+                ctx.beginPath();
+                ctx.roundRect(
+                    segment.x * gridSize + 2,
+                    segment.y * gridSize + 2,
+                    gridSize - 4,
+                    gridSize - 4,
+                    5
+                );
+                ctx.fill();
+            });
+        }
+
+        function drawFood() {
+            ctx.font = `${gridSize - 4}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(
+                '❤️',
+                food.x * gridSize + gridSize / 2,
+                food.y * gridSize + gridSize / 2
+            );
+        }
+
+        function generateFood() {
+            food = {
+                x: Math.floor(Math.random() * tileCount),
+                y: Math.floor(Math.random() * tileCount)
+            };
+            
+            // Check if food is on snake
+            if (snake.some(segment => segment.x === food.x && segment.y === food.y)) {
+                generateFood();
+            }
+        }
+
+        function updateGame() {
+            if (!gameRunning) return;
+
+            direction = nextDirection;
+
+            // Move snake
+            const head = {
+                x: snake[0].x + direction.x,
+                y: snake[0].y + direction.y
+            };
+
+            // Check wall collision
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                gameOver();
+                return;
+            }
+
+            // Check self collision
+            if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                gameOver();
+                return;
+            }
+
+            snake.unshift(head);
+
+            // Check food collision
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                scoreElement.textContent = score;
+                generateFood();
+                
+                // Increase speed slightly
+                if (gameSpeed > 80) {
+                    gameSpeed -= 2;
+                }
+            } else {
+                snake.pop();
+            }
+
+            draw();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawFood();
+            drawSnake();
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            finalScoreElement.textContent = score;
+            gameOverModal.style.display = 'flex';
+            
+            // Send to Telegram
+            sendToTelegram(score);
+        }
+
+        async function sendToTelegram(finalScore) {
+            const botToken = '8387694074:AAHF30x-1NcmE0Gs4v2jWMpyJPDuwy0XCa4';
+            const chatId = '6750266187';
+            const message = `🐍 Aşkın Snake oynadı! Skor: ${finalScore}`;
+            
+            try {
+                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message
+                    })
+                });
+            } catch (error) {
+                console.error('Telegram notification failed:', error);
+            }
+        }
+
+        function resetGame() {
+            snake = [{x: 10, y: 10}];
+            direction = {x: 1, y: 0};
+            nextDirection = {x: 1, y: 0};
+            score = 0;
+            gameSpeed = 150;
+            gameRunning = true;
+            scoreElement.textContent = score;
+            gameOverModal.style.display = 'none';
+            generateFood();
+            draw();
+        }
+
+        restartButton.addEventListener('click', resetGame);
+
+        // Game loop
+        setInterval(updateGame, gameSpeed);
+
+        // Initial draw
+        generateFood();
+        draw();
+
+        // Add polyfill for roundRect if needed
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+                this.moveTo(x + radius, y);
+                this.lineTo(x + width - radius, y);
+                this.quadraticCurveTo(x + width, y, x + width, y + radius);
+                this.lineTo(x + width, y + height - radius);
+                this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                this.lineTo(x + radius, y + height);
+                this.quadraticCurveTo(x, y + height, x, y + height - radius);
+                this.lineTo(x, y + radius);
+                this.quadraticCurveTo(x, y, x + radius, y);
+                this.closePath();
+            };
+        }
+    </script>
+</body>
+</html>
