@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Evrensel Aşkım 🌌</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: #000005;
+            background-image: radial-gradient(circle at bottom, #1a0b2e 0%, #000000 100%);
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            z-index: 1;
+        }
+
+        .back-btn {
+            position: fixed; top: 20px; left: 20px;
+            font-size: 1.2rem; color: rgba(255, 255, 255, 0.8);
+            z-index: 100; cursor: pointer; text-decoration: none;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px; border-radius: 30px;
+            display: flex; align-items: center; gap: 8px;
+            backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+
+        /* Alt Vurucu Yazı */
+        #bottom-message {
+            position: fixed;
+            bottom: 40px;
+            width: 100%;
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+            padding: 0 20px;
+        }
+
+        #bottom-message h1 {
+            font-family: 'Dancing Script', cursive;
+            color: #fff;
+            font-size: 1.6rem;
+            font-weight: 700;
+            text-shadow: 0 0 20px #ff4b6e;
+            animation: pulseGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            from { text-shadow: 0 0 10px #ff4b6e; opacity: 0.8; }
+            to { text-shadow: 0 0 30px #ff4b6e; opacity: 1; }
+        }
+
+        @media (min-width: 768px) {
+            #bottom-message h1 { font-size: 3rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn">← Geri Dön</a>
+    
+    <canvas id="universe"></canvas>
+    
+    <div id="bottom-message">
+        <h1>Seni evrendeki tüm yıldızlardan daha çok seviyorum...</h1>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('universe');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+
+        // Sadece "Seni Seviyorum" ifadeleri (Parantez içleri temizlendi)
+        const lovePhrases = [
+            "Seni Seviyorum", "I Love You", "Ich Liebe Dich", "Je T'aime",
+            "Te Amo", "Ti Amo", "Eu Te Amo", "Я Тебя Люблю",
+            "愛してる", "我爱你", "사랑해", "أحبك",
+            "Σ' Agapó", "Ani Ohev Otakh", "Te Quiero", "Ik Hou Van Jou",
+            "Jag Älskar Dig", "Jeg Elsker Dig", "Jeg Elsker Deg", "Rakastan Sinua",
+            "Kocham Cię", "Miluji Tě", "Ľúbim Ťa", "Szeretlek",
+            "Te Iubesc", "Obicham Te", "Volim Te", "Të Dua",
+            "Seni Seviýärin", "Mən Səni Sevirəm", "Men Seni Sevaman", "Süyöm Seni",
+            "Mahal Kita", "Aku Cinta Kamu", "Saya Cintakan Mu", "Tôi Yêu Bạn",
+            "Phom Rak Khun", "Chan Rak Khun", "Bong Salang Oun", "Khoi Hak Chao",
+            "Main Tumse Pyaar Karta Hoon", "Ami Tomake Bhalobashi", "Nenu Ninnu Premistunnanu",
+            "Saranghamnida", "Nakupenda", "Ninapenda Wewe", "Bi Chamd Khairtai",
+            "Techihila", "T'estimo", "Amote", "Maite Zaitut",
+            "S'agapo Poli", "Te Dua Shume", "Mi Amas Vin", "Je T'adore",
+            "Te Quiero Mucho", "Ti Voglio Bene", "Ich Hab' Dich Lieb", "Mina Armastan Sind"
+        ];
+
+        let shootingStars = [];
+        let backgroundStars = [];
+        
+        // ŞERİT SİSTEMİ (Çakışmayı önlemek için)
+        const LANE_COUNT = 5; // Ekranı 5 dikey şeride böl
+        let lanes = []; // Hangi şerit ne zaman müsait
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            // Şeritleri sıfırla
+            lanes = new Array(LANE_COUNT).fill(0);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Sabit Arka Plan Yıldızları
+        class Star {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 1.5;
+                this.blinkSpeed = Math.random() * 0.03 + 0.01;
+                this.alpha = Math.random();
+            }
+            update() {
+                this.alpha += this.blinkSpeed;
+                if (this.alpha > 1 || this.alpha < 0.2) this.blinkSpeed *= -1;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Kayan Yazılı Yıldızlar
+        class ShootingStar {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                // Müsait bir şerit bul
+                let laneIndex = Math.floor(Math.random() * LANE_COUNT);
+                
+                // Şeridin ortasını hesapla
+                const laneWidth = width / LANE_COUNT;
+                this.x = (laneIndex * laneWidth) + (laneWidth / 2);
+                
+                // Hafif sağa sola sapma payı (Doğallık için, ama çok değil)
+                this.x += (Math.random() - 0.5) * (laneWidth * 0.4);
+
+                this.y = -100 - Math.random() * 200; // Ekranın üstünden rastgele uzaklıkta başla
+                this.speed = Math.random() * 1.5 + 1; // YAVAŞ HIZ (1 ile 2.5 arası)
+                
+                // Düz aşağı insin (Okunaklı olması için)
+                this.angle = Math.PI / 2; 
+
+                this.text = lovePhrases[Math.floor(Math.random() * lovePhrases.length)];
+                
+                // Renkler (Pastel ve Parlak)
+                const colors = ['#ff4b6e', '#64b5f6', '#ba68c8', '#ffd54f', '#ffffff', '#4db6ac'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Mobil için ideal font boyutu
+                this.fontSize = Math.random() * 6 + 18; // 18px - 24px
+            }
+
+            update() {
+                this.y += this.speed;
+
+                // Ekrandan tamamen çıkınca resetle
+                if (this.y > height + 100) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                // 1. YILDIZ BAŞI (Parlak)
+                ctx.beginPath();
+                ctx.arc(0, 0, 4, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = this.color;
+                ctx.fill();
+
+                // 2. KUYRUK (İz)
+                const gradient = ctx.createLinearGradient(0, 0, 0, -60);
+                gradient.addColorStop(0, this.color);
+                gradient.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(-1, 0, 2, -60);
+
+                // 3. METİN (Yıldızın biraz arkasından gelir)
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.fillStyle = this.color;
+                ctx.font = `bold ${this.fontSize}px 'Outfit', sans-serif`;
+                ctx.textAlign = "center";
+                // Yazıyı dikey yazmak yerine yatay ama 90 derece döndürülmüş gibi değil, 
+                // düz okunaklı şekilde yıldızın hemen üstüne (arkasına) koyuyoruz.
+                ctx.fillText(this.text, 0, -25); 
+
+                ctx.restore();
+            }
+        }
+
+        // Başlatma
+        function init() {
+            // 300 Sabit Yıldız
+            for (let i = 0; i < 300; i++) backgroundStars.push(new Star());
+            
+            // 6 Adet Kayan Yazı (Aynı anda ekranı boğmasın diye az tuttum)
+            // Her biri farklı şeritlere dağılacak
+            for (let i = 0; i < 6; i++) {
+                // Başlangıçta hepsi aynı anda inmesin diye gecikmeli başlatma simülasyonu
+                const star = new ShootingStar();
+                star.y = Math.random() * height; // Ekrana dağıt
+                shootingStars.push(star);
+            }
+        }
+
+        // Animasyon Döngüsü
+        function animate() {
+            // Hafif iz efekti (Motion Blur) - Çok hafif tuttum ki yazılar bulanıklaşmasın
+            ctx.fillStyle = 'rgba(0, 0, 5, 0.3)';
+            ctx.fillRect(0, 0, width, height);
+
+            // Arka plan yıldızları
+            backgroundStars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+
+            // Kayan yazılar
+            shootingStars.forEach(shootingStar => {
+                shootingStar.update();
+                shootingStar.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+
+    </script>
+</body>
+</html>
