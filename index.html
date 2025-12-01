@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Özelim ❤️</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
+    <title>Sonsuza Dek... ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -16,14 +16,16 @@
 
     <div id="loading-screen">
         <div class="heart-loader">❤️</div>
+        <p class="loading-text">Kalbim senin için hazırlanıyor...</p>
     </div>
 
     <div id="welcome-screen" class="hidden">
         <div class="welcome-content">
-            <div class="photo-circle">
+            <div class="photo-circle floating-anim">
                 <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=600&auto=format&fit=crop" alt="Biz">
             </div>
-            <h1 class="fade-text">Hoşgeldin<br>Sevgilim...</h1>
+            <h1 class="handwritten-title fade-text">Hoşgeldinnn<br>Diğer Yarım...</h1>
+            <p class="subtitle">Ekrana dokun</p>
         </div>
     </div>
 
@@ -32,81 +34,83 @@
         <div class="top-bar-widget">
             <div class="weather-container">
                 <div class="weather-info">
-                    <i id="w-icon" class="fa-solid fa-cloud-sun"></i>
-                    <span id="w-temp">..</span>
+                    <i id="w-icon" class="fa-solid fa-heart"></i>
+                    <span id="w-temp">Seninle</span>
                 </div>
-                <p id="w-msg" class="weather-message">Yükleniyor...</p>
+                <p id="w-msg" class="weather-message">Her hava güzel...</p>
             </div>
             <div class="clock-info" id="live-clock">00:00</div>
         </div>
 
         <div class="menu-btn" onclick="toggleMenu()">
-            <i class="fa-solid fa-bars"></i>
-            <span id="menu-notification-dot" class="notification-dot" style="top: 0; right: 0; display: none;"></span>
+            <i class="fa-solid fa-bars-staggered"></i>
+            <span id="menu-notification-dot" class="notification-dot" style="display: none;"></span>
         </div>
 
         <div id="sidebar-overlay" onclick="toggleMenu()"></div>
+        
         <div id="sidebar">
             <div class="sidebar-header">
-                <h3>Menü ❤️</h3>
-                <i class="fa-solid fa-xmark" onclick="toggleMenu()"></i>
+                <h3 class="handwritten-title">❤️</h3>
+                <i class="fa-solid fa-xmark close-icon" onclick="toggleMenu()"></i>
             </div>
             
             <div class="menu-links">
                 <a href="cok-guzelsin.html" class="menu-item">
-                    <i class="fa-solid fa-question"></i>
+                    <i class="fa-regular fa-lightbulb"></i>
                     <span>Biliyor muydun?</span>
                 </a>
                 
                 <a href="reasons.html" class="menu-item">
-                    <i class="fa-solid fa-star"></i>
-                    <span>Çokkkk Güzelsinnnn</span>
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>seni çok seviyorummm çünkü</span>
                 </a>
 
                 <a href="dilek.html" class="menu-item">
-                    <i class="fa-solid fa-wind"></i>
-                    <span>Dilek Feneri 🏮</span>
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>Dilek Tutalım 🏮</span>
                 </a>
+                
                 <a href="snake.html" class="menu-item">
-                    <i class="fa-solid fa-bouquet"></i>
-                    <span>Yılan oyunu</span>
+                    <i class="fa-solid fa-gamepad"></i>
+                    <span>Sıkılırsan Oyna</span>
                 </a>
 
                 <a href="cicek.html" class="menu-item">
-                    <i class="fa-solid fa-bouquet"></i>
-                    <span>Günün Çiçeği 🌸</span>
+                    <i class="fa-solid fa-sun"></i>
+                    <span>Günün En güzel Çiçeği 🌸</span>
                 </a>
 
                 <a href="yapilacaklar.html" class="menu-item">
-                    <i class="fa-solid fa-clipboard-list"></i>
-                    <span>Yapılacaklar Listesi 📝</span>
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Hayallerimiz 📝</span>
                 </a>
-           
+            
                 <div class="menu-item" onclick="openInfoModal()">
-                    <i class="fa-solid fa-circle-info"></i>
-                    <span>Bu Site Hakkında</span>
+                    <i class="fa-solid fa-code"></i>
+                    <span>Sana Özel Kodladım</span>
                 </div>
 
                 <div class="menu-item" onclick="openMsgModal()">
-                    <i class="fa-solid fa-paper-plane"></i>
-                    <span>Mesaj Gönder</span>
+                    <i class="fa-regular fa-envelope"></i>
+                    <span>Bana Not Bırak</span>
                 </div>
 
-                <a href="guncellemeler.html" class="menu-item" onclick="markUpdatesRead()" style="background: #f0f8ff; border: 1px solid #bcdfff; position: relative;">
-                    <i class="fa-solid fa-rocket"></i>
-                    <span>Neler Yeni? 🚀</span>
+                <a href="guncellemeler.html" class="menu-item special-item" onclick="markUpdatesRead()">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    <span>Yeni Neler Var?</span>
                     <span id="update-dot" class="notification-dot" style="display: none;"></span>
                 </a>
             </div>
             
-            <p class="menu-footer">Seni Seviyorum...</p>
+            <p class="menu-footer">Her satırında sen varsın...</p>
         </div>
 
         <div id="msg-modal" class="hidden">
             <div class="modal-content">
                 <span class="close-modal" onclick="closeMsgModal()">&times;</span>
-                <h3>Ona Bir Not Bırak 💌</h3>
-                <textarea id="messageText" placeholder="İçinden geçenleri yaz..."></textarea>
+                <h3 class="handwritten-title">İçinden Geçenler 💌</h3>
+                <textarea id="messageText" placeholder="Buraya yazabilirsin güzelim..."></textarea>
                 <button id="sendMsg">Gönder ❤️</button>
             </div>
         </div>
@@ -114,15 +118,21 @@
         <div id="info-modal" class="hidden">
             <div class="modal-content info-content">
                 <span class="close-modal" onclick="closeInfoModal()">&times;</span>
-                <h3>Nasıl Yaptım? 🛠️</h3>
+                <h3 class="handwritten-title">Nasıl Yaptım? 🛠️</h3>
                 
                 <div class="scrollable-text">
-                    <p>
+                     <p>
+
                         Güzelim siteyi sana yardım alarak hepsini kodlamasam da kodlayabildiğim yerleri
+
                         kodlayarak yaptım umarım beğenmişsindir, bu site sonsuza kadar açık kalıcak.<br><br>
+
                         Bazı hatalar içerebilir.<br><br>
+
                         Seni çok ama çok seviyorummmm<br><br>
+
                         Sen benim için çok özelsin... ❤️
+
                     </p>
                 </div>
             </div>
@@ -130,11 +140,11 @@
 
         <div id="home-page" class="page active">
             <div class="content-wrapper">
-                <p class="top-label">Birlikte geçen zaman</p>
+                <p class="top-label">Sonsuzluğa akan bir sayaç...</p>
                 
                 <div class="hero-counter">
                     <span id="days">0</span>
-                    <span class="hero-label">GÜN</span>
+                    <span class="hero-label">GÜNDÜR SENİNLEYİM</span>
                 </div>
 
                 <div class="stats-list">
@@ -152,18 +162,18 @@
                     </div>
                 </div>
 
-                <p class="infinity-text">Sonsuza kadar akan sayaç... ∞</p>
+                <p class="infinity-text">Ve daha niceleri... ∞</p>
             </div>
         </div>
 
         <div id="settings-page" class="page">
             <div class="settings-container">
-                <h2>Ayarlar ⚙️</h2>
+                <h2 class="handwritten-title">Ayarlar ⚙️</h2>
                 
                 <div class="setting-card">
                     <div class="setting-info">
                         <i class="fa-solid fa-music"></i>
-                        <span>Arkaplan Müziği</span>
+                        <span>Arkaplan müziği</span>
                     </div>
                     <label class="switch">
                         <input type="checkbox" id="music-toggle">
@@ -172,22 +182,22 @@
                 </div>
 
                 <div class="theme-section">
-                    <h3>Tema Seçimi 🎨</h3>
+                    <h3>Tema Rengi 🎨</h3>
                     <div class="theme-grid">
                         </div>
                 </div>
 
-                <p class="setting-note">Sürpriz günlerde otomatik değişen tema özelliği açıktır.</p>
+                <p class="setting-note">Sen hangi rengi seversen site o renk olsun.</p>
             </div>
         </div>
 
         <nav class="bottom-nav">
             <div class="nav-item active" onclick="switchTab('home')">
-                <i class="fa-solid fa-house"></i>
-                <span>Ana Sayfa</span>
+                <i class="fa-solid fa-heart"></i>
+                <span>Biz</span>
             </div>
             <div class="nav-item" onclick="switchTab('settings')">
-                <i class="fa-solid fa-gear"></i>
+                <i class="fa-solid fa-sliders"></i>
                 <span>Ayarlar</span>
             </div>
         </nav>

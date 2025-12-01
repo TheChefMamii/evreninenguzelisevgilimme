@@ -29,7 +29,9 @@
             background: white; width: 40px; height: 40px; border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
         }
+        .back-btn:active { transform: scale(0.9); }
 
         /* 1. AŞAMA: TARAMA EKRANI */
         #scanning-ui {
@@ -49,7 +51,12 @@
             100% { transform: rotate(360deg); } 
         }
 
-        .scan-text { font-size: 1.2rem; color: #555; animation: pulse 1s infinite; }
+        .scan-text { 
+            font-size: 1.2rem; color: #555; 
+            animation: pulse 1s infinite;
+            /* Metin değişiminde zıplamayı önlemek için min-height ekleyebilirsiniz */
+            min-height: 25px; 
+        }
 
         /* 2. AŞAMA: SONUÇ EKRANI */
         #result-ui { display: none; width: 100%; animation: popUp 0.5s ease; }
@@ -104,20 +111,59 @@
         <div class="pointing-emoji">🫵</div> 
 
         <p class="final-msg">
-            Tam şu an bu ekrana bakan fıstık!
+            Tam şu an bu ekrana bakan çiçekk
         </p>
         <p class="sub-msg">
-            (Evet evet sen... Senden daha güzeli yok ❤️)
+            (Evet senden daha güzeli yok ❤️)
         </p>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
-        // 3 Saniye bekle ve sonucu göster
-        setTimeout(() => {
-            document.getElementById('scanning-ui').style.display = 'none';
-            document.getElementById('result-ui').style.display = 'block';
+        const scanningUI = document.getElementById('scanning-ui');
+        const resultUI = document.getElementById('result-ui');
+        const scanText = document.querySelector('.scan-text');
+        let scanInterval;
+        let messageIndex = 0;
+        
+        // Dinamik Tarama Mesajları
+        const scanMessages = [
+            "Evrendeki en güzel çiçeğinc verileri alınıyor...", // 0. Saniye
+            "Güzellik Seviyesi verileri analiz ediliyor...",      // 1. Saniye
+            "Eşleşme bulundu! Mükemmeliyet onaylanıyor...",      // 2. Saniye
+            "Sonuçlar hazırlanıyor...❤️"         // 3. Saniye
+        ];
+
+        // Çalışma Mantığı Geliştirme: Tarama döngüsünü başlatır
+        function startScanning() {
+            // İlk mesajı hemen göster
+            scanText.innerText = scanMessages[0];
+            messageIndex = 1;
+
+            // Her saniyede bir mesajı güncelle
+            scanInterval = setInterval(() => {
+                if (messageIndex < scanMessages.length) {
+                    scanText.innerText = scanMessages[messageIndex];
+                    messageIndex++;
+                } else {
+                    // Mesajlar bitti, sonucu göster
+                    clearInterval(scanInterval);
+                    showResult();
+                }
+            }, 1000); // 1 saniye aralıklarla güncelle
+        }
+
+        // Sonucu gösteren temel fonksiyon
+        function showResult() {
+            scanningUI.style.display = 'none';
+            resultUI.style.display = 'block';
+
+            // Titreşim Geri Bildirimi (Mobil odaklı)
+            if ('vibrate' in navigator) {
+                // Kısa, kısa ara, uzun titreşim
+                navigator.vibrate([100, 50, 200]); 
+            }
             
             // Konfeti Patlat
             confetti({
@@ -126,10 +172,10 @@
                 origin: { y: 0.6 },
                 colors: ['#ff4b6e', '#ffccd5', '#ffffff']
             });
+        }
 
-            // Telegram kodu kaldırıldı. Sadece animasyon çalışacak.
-
-        }, 3000);
+        // Sayfa yüklendiğinde taramayı başlat
+        document.addEventListener('DOMContentLoaded', startScanning);
     </script>
 
 </body>

@@ -8,11 +8,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* Genel Stiller */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; }
-
         body {
             background-color: #ffe6eb;
-            /* Hafif desen */
             background-image: radial-gradient(#ffccd5 1px, transparent 1px);
             background-size: 20px 20px;
             height: 100vh;
@@ -30,20 +29,22 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 20px; z-index: 10;
         }
-
         #backButton {
             background: white; border: none; padding: 10px 15px;
             border-radius: 20px; font-size: 1rem; color: #ff4b6e; font-weight: bold;
             box-shadow: 0 4px 10px rgba(255, 75, 110, 0.2); cursor: pointer;
         }
-
         .score-box {
             background: white; padding: 10px 20px; border-radius: 20px;
             color: #ff4b6e; font-weight: bold; font-size: 1.2rem;
             box-shadow: 0 4px 10px rgba(255, 75, 110, 0.2);
             display: flex; gap: 10px; align-items: center;
+            flex-direction: column;
+            line-height: 1.2;
+            min-width: 100px;
         }
-
+        .current-score { font-size: 1.4rem; }
+        .high-score { font-size: 0.8rem; color: #777; }
         .pause-btn {
             background: #ff4b6e; color: white; border: none;
             width: 40px; height: 40px; border-radius: 50%;
@@ -54,16 +55,37 @@
         /* Oyun Alanı */
         #gameContainer {
             position: relative;
-            margin-top: 60px; /* Header payı */
+            margin-top: 60px;
             margin-bottom: 20px;
         }
-
         #gameCanvas {
             background: rgba(255, 255, 255, 0.9);
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(255, 75, 110, 0.2);
             border: 4px solid #ffccd5;
             display: block;
+        }
+
+        /* Başlat Butonu Stili */
+        #startButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(45deg, #ff4b6e, #ff758c);
+            color: white;
+            box-shadow: 0 8px 15px rgba(255, 75, 110, 0.5);
+            cursor: pointer;
+            z-index: 50;
+            transition: transform 0.2s, opacity 0.3s;
+        }
+        #startButton:active {
+            transform: translate(-50%, -50%) scale(0.95);
         }
 
         /* Kontrol Tuşları (D-PAD) */
@@ -74,57 +96,29 @@
             gap: 10px;
             margin-bottom: 20px;
         }
-
         .d-btn {
             width: 60px; height: 50px;
             background: white; color: #ff4b6e;
             border-radius: 12px; font-size: 1.5rem;
-            display: flex; justify-content: center; align-items: center;
             box-shadow: 0 4px 0 #ffb7c5; cursor: pointer;
+            display: flex; justify-content: center; align-items: center;
             transition: transform 0.1s;
         }
         .d-btn:active { transform: translateY(4px); box-shadow: none; background: #fff0f5; }
-
         .up { grid-column: 2; grid-row: 1; }
         .left { grid-column: 1; grid-row: 2; }
         .down { grid-column: 2; grid-row: 2; }
         .right { grid-column: 3; grid-row: 2; }
 
-        /* Modal */
-        #gameOverModal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6); z-index: 1000;
-            justify-content: center; align-items: center; backdrop-filter: blur(5px);
-        }
-
-        #modalContent {
-            background: white; padding: 30px; border-radius: 25px;
-            text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-            width: 85%; max-width: 320px; animation: popUp 0.3s ease;
-        }
-
+        /* Modal ve Pause Overlay (Diğer stiller değişmedi) */
+        #gameOverModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        #modalContent { background: white; padding: 30px; border-radius: 25px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); width: 85%; max-width: 320px; animation: popUp 0.3s ease; }
         @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
         #modalContent h2 { color: #ff4b6e; margin-bottom: 10px; font-size: 1.8rem; }
         #finalScore { font-size: 3rem; color: #333; font-weight: 800; margin: 10px 0; }
-        
-        #restartButton {
-            background: linear-gradient(45deg, #ff4b6e, #ff758c);
-            color: white; border: none; padding: 15px 30px;
-            border-radius: 30px; font-size: 1.1rem; font-weight: bold;
-            cursor: pointer; width: 100%; margin-top: 15px;
-            box-shadow: 0 5px 15px rgba(255, 75, 110, 0.4);
-        }
+        #restartButton { background: linear-gradient(45deg, #ff4b6e, #ff758c); color: white; border: none; padding: 15px 30px; border-radius: 30px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; box-shadow: 0 5px 15px rgba(255, 75, 110, 0.4); }
         #restartButton:active { transform: scale(0.95); }
-
-        /* Pause Overlay */
-        #pauseOverlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.5); border-radius: 15px;
-            display: none; justify-content: center; align-items: center;
-            font-size: 2rem; color: #ff4b6e; font-weight: bold;
-            backdrop-filter: blur(2px);
-        }
+        #pauseOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.5); border-radius: 15px; display: none; justify-content: center; align-items: center; font-size: 2rem; color: #ff4b6e; font-weight: bold; backdrop-filter: blur(2px); }
 
     </style>
 </head>
@@ -133,7 +127,8 @@
     <div class="header">
         <button id="backButton" onclick="window.location.href='index.html'"><i class="fa-solid fa-arrow-left"></i></button>
         <div class="score-box">
-            <i class="fa-solid fa-heart"></i> <span id="score">0</span>
+            <div class="current-score"><i class="fa-solid fa-heart"></i> <span id="score">0</span></div>
+            <div class="high-score">EN YÜKSEK: <span id="highScore">0</span></div>
         </div>
         <button class="pause-btn" onclick="togglePause()">
             <i class="fa-solid fa-pause" id="pauseIcon"></i>
@@ -142,6 +137,7 @@
     
     <div id="gameContainer">
         <canvas id="gameCanvas"></canvas>
+        <button id="startButton" onclick="handleStart()">BAŞLAT</button>
         <div id="pauseOverlay">DURAKLATILDI</div>
     </div>
 
@@ -157,6 +153,7 @@
             <h2>Oyun Bitti! 💔</h2>
             <p>Toplam Kalp:</p>
             <div id="finalScore">0</div>
+            <p id="highScoreMsg"></p>
             <button id="restartButton" onclick="resetGame()">Tekrar Oyna 🐍</button>
         </div>
     </div>
@@ -165,18 +162,20 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const scoreElement = document.getElementById('score');
+        const highScoreElement = document.getElementById('highScore');
         const gameOverModal = document.getElementById('gameOverModal');
         const finalScoreElement = document.getElementById('finalScore');
+        const highScoreMsgElement = document.getElementById('highScoreMsg');
         const pauseOverlay = document.getElementById('pauseOverlay');
         const pauseIcon = document.getElementById('pauseIcon');
+        const startButton = document.getElementById('startButton');
 
-        // Telegram Ayarları
+        // Telegram Ayarları 
         const BOT_TOKEN = '8387694074:AAHF30x-1NcmE0Gs4v2jWMpyJPDuwy0XCa4'; 
         const CHAT_ID = '6750266187';
 
         // Ekran Boyutlandırma
         const gridSize = 20;
-        // Ekranın genişliğine göre kare bir alan oluştur
         const size = Math.min(window.innerWidth - 40, 360); 
         const tileCount = Math.floor(size / gridSize);
         
@@ -184,77 +183,110 @@
         canvas.height = tileCount * gridSize;
 
         // Oyun Değişkenleri
-        let snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
+        let snake = [];
         let velocity = {x: 1, y: 0};
-        let nextVelocity = {x: 1, y: 0}; // Hızlı basışlarda çakışmayı önlemek için
-        let food = {x: 15, y: 15};
+        let nextVelocity = {x: 1, y: 0};
+        let food = {};
+        let foodType = 'HEART'; 
         let score = 0;
+        let highScore = localStorage.getItem('snakeHighScore') || 0;
         let gameInterval;
+        let isStarted = false;
         let isPaused = false;
         let isGameOver = false;
-        let heartScale = 1;
-        let heartGrowing = true;
+        let moveCounter = 0;
+        
+        // ✨ KOLAYLAŞTIRMA 1: Başlangıç hızı Ultra YAVAŞLATILDI (12)
+        const MOVE_THRESHOLD_INITIAL = 12; 
+        let moveThreshold = MOVE_THRESHOLD_INITIAL;
+        
+        let heartScale = 1; 
+        let heartGrowing = true; 
+        
+        highScoreElement.innerText = highScore;
 
-        // Başlangıç
-        startGame();
+        resetGame(true);
+
+        function handleStart() {
+            startButton.style.display = 'none';
+            isStarted = true;
+            startGame();
+        }
+
+        function getGameSpeed() {
+            // ✨ KOLAYLAŞTIRMA 3: Zorluk artışı Neredeyse Kaldırıldı (Her 20 skorda bir hızlanma, minimum hız 3)
+            let speed = MOVE_THRESHOLD_INITIAL - Math.floor(score / 20); 
+            return Math.max(3, speed); 
+        }
 
         function startGame() {
             if(gameInterval) clearInterval(gameInterval);
-            gameInterval = setInterval(gameLoop, 200); // Oyun Hızı (Düşük = Hızlı)
+            gameInterval = setInterval(gameLoop, 1000 / 60); 
         }
 
         function gameLoop() {
-            if (isPaused || isGameOver) return;
+            if (!isStarted || isPaused || isGameOver) {
+                 drawFoodPulse();
+                 return;
+            }
 
-            velocity = nextVelocity; // Yönü güncelle
+            moveCounter++;
+            if (moveCounter < moveThreshold) {
+                draw();
+                return;
+            }
+            moveCounter = 0;
+            moveThreshold = getGameSpeed(); 
 
-            // Yılanı hareket ettir
+            velocity = nextVelocity; 
             const head = { x: snake[0].x + velocity.x, y: snake[0].y + velocity.y };
 
-            // Duvar Kontrolü (Duvarlara çarpınca ölür)
+            // Çarpma Kontrolü
             if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
                 return gameOver();
             }
-
-            // Kendine Çarpma Kontrolü
-            for (let part of snake) {
-                if (head.x === part.x && head.y === part.y) {
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
                     return gameOver();
                 }
             }
 
-            snake.unshift(head); // Yeni başı ekle
+            snake.unshift(head); 
 
             // Yem Yeme Kontrolü
             if (head.x === food.x && head.y === food.y) {
-                score++;
+                let points = foodType === 'DIAMOND' ? 5 : 1;
+                score += points;
                 scoreElement.innerText = score;
                 placeFood();
-                // Yılanı kısaltma (Büyümüş olur)
-                if(navigator.vibrate) navigator.vibrate(50); // Titreşim
+                
+                if(navigator.vibrate) navigator.vibrate([50, 20, 50]); 
             } else {
-                snake.pop(); // Yem yemediysen kuyruğu sil
+                snake.pop(); 
             }
 
             draw();
         }
-
-        function draw() {
-            // Arka planı temizle
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Yemi Çiz (Kalp Atışı Efekti)
+        
+        // --- ÇİZİM ---
+        function drawFoodPulse() {
             if (heartGrowing) {
-                heartScale += 0.05;
-                if (heartScale > 1.2) heartGrowing = false;
+                heartScale += 0.005;
+                if (heartScale > 1.1) heartGrowing = false;
             } else {
-                heartScale -= 0.05;
+                heartScale -= 0.005;
                 if (heartScale < 0.9) heartGrowing = true;
             }
+        }
 
+        function draw() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            drawFoodPulse();
+
+            // Yemi Çiz
             ctx.save();
-            // Kalbin merkezine git
             const foodX = food.x * gridSize + gridSize / 2;
             const foodY = food.y * gridSize + gridSize / 2;
             ctx.translate(foodX, foodY);
@@ -263,32 +295,49 @@
             ctx.font = `${gridSize}px Arial`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('❤️', 0, 2); // Hafif aşağı offset
+            
+            ctx.fillText(foodType === 'DIAMOND' ? '💎' : '❤️', 0, 2); 
             ctx.restore();
 
             // Yılanı Çiz
             snake.forEach((part, index) => {
-                // Baş kısmı farklı renk
-                ctx.fillStyle = index === 0 ? '#ff4b6e' : '#ff9a9e';
+                let fillStyle = '';
+                if (isGameOver) {
+                    fillStyle = 'rgba(255, 0, 0, 0.7)'; 
+                } else {
+                    fillStyle = index === 0 ? '#ff4b6e' : '#ff9a9e'; 
+                }
                 
-                // Yuvarlak köşeli kareler
+                ctx.fillStyle = fillStyle;
+                
                 const x = part.x * gridSize;
                 const y = part.y * gridSize;
-                const size = gridSize - 2; // Aralarda boşluk olsun
-                const r = 5; // Radius
+                // ✨ KOLAYLAŞTIRMA 2: Hata Payı Cömertleştirildi (6 birim boşluk)
+                const size = gridSize - 6; 
+                const r = 5; 
+                const offset = 3; // İçeri kaydırma payı (3x2=6 birim boşluk)
 
                 ctx.beginPath();
-                ctx.roundRect(x + 1, y + 1, size, size, r);
+                ctx.roundRect(x + offset, y + offset, size, size, r);
                 ctx.fill();
                 
-                // Yılanın Gözleri (Sadece başta)
-                if(index === 0) {
-                    ctx.fillStyle = 'white';
+                // Yılanın Baş Yönü ve Gözler (Diğer detaylar değişmedi)
+                if(index === 0 && !isGameOver) {
+                    ctx.fillStyle = 'black'; 
+                    let eyeDeltaX = velocity.x * 2;
+                    let eyeDeltaY = velocity.y * 2;
+
                     ctx.beginPath();
-                    // Yöne göre gözleri çizmek karmaşık olur, basitçe ortaya çizelim
-                    ctx.arc(x + 5, y + 5, 2, 0, Math.PI*2);
-                    ctx.arc(x + 13, y + 5, 2, 0, Math.PI*2);
+                    ctx.arc(x + gridSize/3 + eyeDeltaX, y + gridSize/3 + eyeDeltaY, 1.5, 0, Math.PI*2);
+                    ctx.arc(x + gridSize*2/3 + eyeDeltaX, y + gridSize/3 + eyeDeltaY, 1.5, 0, Math.PI*2);
                     ctx.fill();
+
+                    ctx.fillStyle = 'red';
+                    let tongueSize = 3;
+                    if (velocity.x > 0) ctx.fillRect(x + gridSize - 1, y + gridSize / 2 - 1, tongueSize, 2);
+                    if (velocity.x < 0) ctx.fillRect(x - tongueSize + 1, y + gridSize / 2 - 1, tongueSize, 2);
+                    if (velocity.y > 0) ctx.fillRect(x + gridSize / 2 - 1, y + gridSize - 1, 2, tongueSize);
+                    if (velocity.y < 0) ctx.fillRect(x + gridSize / 2 - 1, y - tongueSize + 1, 2, tongueSize);
                 }
             });
         }
@@ -298,16 +347,29 @@
                 x: Math.floor(Math.random() * tileCount),
                 y: Math.floor(Math.random() * tileCount)
             };
-            // Yılanın üstüne gelmesin
+            
+            foodType = Math.random() < 0.15 ? 'DIAMOND' : 'HEART'; 
+
             snake.forEach(part => {
                 if (part.x === food.x && part.y === food.y) placeFood();
             });
         }
+        
+        function checkHighScore() {
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('snakeHighScore', highScore);
+                highScoreMsgElement.innerHTML = `**Yeni Rekor!** 👑 ${highScore} Kalp!`;
+            } else {
+                highScoreMsgElement.innerText = `En İyi Skor: ${highScore}`;
+            }
+            highScoreElement.innerText = highScore;
+        }
+
 
         // --- KONTROLLER ---
-        // 1. Ekran Tuşları
         function handleInput(dir) {
-            if (isPaused || isGameOver) return;
+            if (!isStarted || isPaused || isGameOver) return;
             
             switch(dir) {
                 case 'UP':
@@ -325,46 +387,9 @@
             }
         }
 
-        // 2. Klavye (PC için test ederken)
-        document.addEventListener('keydown', e => {
-            if (e.key === 'ArrowUp') handleInput('UP');
-            if (e.key === 'ArrowDown') handleInput('DOWN');
-            if (e.key === 'ArrowLeft') handleInput('LEFT');
-            if (e.key === 'ArrowRight') handleInput('RIGHT');
-        });
-
-        // 3. Dokunmatik Kaydırma (Swipe)
-        let touchStartX = 0;
-        let touchStartY = 0;
-
-        canvas.addEventListener('touchstart', e => {
-            e.preventDefault(); // Sayfa kaymasını engelle
-            touchStartX = e.changedTouches[0].screenX;
-            touchStartY = e.changedTouches[0].screenY;
-        }, {passive: false});
-
-        canvas.addEventListener('touchend', e => {
-            e.preventDefault();
-            let touchEndX = e.changedTouches[0].screenX;
-            let touchEndY = e.changedTouches[0].screenY;
-            
-            let dx = touchEndX - touchStartX;
-            let dy = touchEndY - touchStartY;
-
-            if (Math.abs(dx) > Math.abs(dy)) {
-                if (Math.abs(dx) > 30) { // Min kaydırma
-                    handleInput(dx > 0 ? 'RIGHT' : 'LEFT');
-                }
-            } else {
-                if (Math.abs(dy) > 30) {
-                    handleInput(dy > 0 ? 'DOWN' : 'UP');
-                }
-            }
-        }, {passive: false});
-
         // --- DURAKLATMA ---
         function togglePause() {
-            if (isGameOver) return;
+            if (!isStarted || isGameOver) return;
             isPaused = !isPaused;
             
             if (isPaused) {
@@ -379,17 +404,22 @@
         // --- OYUN BİTTİ ---
         function gameOver() {
             isGameOver = true;
+            isStarted = false; 
             clearInterval(gameInterval);
+            
+            if(navigator.vibrate) navigator.vibrate([200, 100, 200]); 
+            
             finalScoreElement.innerText = score;
+            checkHighScore(); 
             gameOverModal.style.display = 'flex';
-
-            // Telegram Bildirimi
+            draw(); 
+            
             if (score > 0) {
                 sendTelegram(score);
             }
         }
 
-        function resetGame() {
+        function resetGame(initial = false) {
             snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
             velocity = {x: 1, y: 0};
             nextVelocity = {x: 1, y: 0};
@@ -397,12 +427,23 @@
             scoreElement.innerText = 0;
             isGameOver = false;
             isPaused = false;
+            isStarted = false; 
+            moveThreshold = MOVE_THRESHOLD_INITIAL;
+            
             gameOverModal.style.display = 'none';
             pauseOverlay.style.display = 'none';
             pauseIcon.classList.replace('fa-play', 'fa-pause');
+            highScoreMsgElement.innerText = '';
             
+            startButton.style.display = 'block';
+
             placeFood();
-            startGame();
+            
+            if (initial) {
+                 draw();
+            } else {
+                 startGame();
+            }
         }
 
         function sendTelegram(finalScore) {
@@ -411,12 +452,12 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     chat_id: CHAT_ID, 
-                    text: `🐍 SNAKE OYNADI!\n\nSevgilin ${finalScore} tane kalp topladı! ❤️` 
+                    text: `🐍 *KALP AVCISI* oynandı!\n\nSevgilin ${finalScore} tane kalp topladı! ❤️` 
                 })
             }).catch(err => console.log(err));
         }
 
-        // Polyfill for roundRect (Eski tarayıcılar için)
+        // Polyfill for roundRect
         if (!CanvasRenderingContext2D.prototype.roundRect) {
             CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
                 if (w < 2 * r) r = w / 2;

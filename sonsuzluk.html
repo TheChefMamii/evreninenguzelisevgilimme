@@ -21,11 +21,7 @@
         }
 
         canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            display: block;
-            z-index: 1;
+            position: absolute; top: 0; left: 0; display: block; z-index: 1;
         }
 
         .back-btn {
@@ -41,20 +37,13 @@
 
         /* Alt Vurucu Yazı */
         #bottom-message {
-            position: fixed;
-            bottom: 40px;
-            width: 100%;
-            text-align: center;
-            z-index: 10;
-            pointer-events: none;
-            padding: 0 20px;
+            position: fixed; bottom: 40px; width: 100%; text-align: center;
+            z-index: 10; pointer-events: none; padding: 0 20px;
         }
 
         #bottom-message h1 {
             font-family: 'Dancing Script', cursive;
-            color: #fff;
-            font-size: 1.6rem;
-            font-weight: 700;
+            color: #fff; font-size: 1.6rem; font-weight: 700;
             text-shadow: 0 0 20px #ff4b6e;
             animation: pulseGlow 3s ease-in-out infinite alternate;
         }
@@ -84,42 +73,62 @@
         const ctx = canvas.getContext('2d');
         let width, height;
 
-        // Sadece "Seni Seviyorum" ifadeleri (Parantez içleri temizlendi)
         const lovePhrases = [
-            "Seni Seviyorum", "I Love You", "Ich Liebe Dich", "Je T'aime",
-            "Te Amo", "Ti Amo", "Eu Te Amo", "Я Тебя Люблю",
-            "愛してる", "我爱你", "사랑해", "أحبك",
-            "Σ' Agapó", "Ani Ohev Otakh", "Te Quiero", "Ik Hou Van Jou",
-            "Jag Älskar Dig", "Jeg Elsker Dig", "Jeg Elsker Deg", "Rakastan Sinua",
-            "Kocham Cię", "Miluji Tě", "Ľúbim Ťa", "Szeretlek",
-            "Te Iubesc", "Obicham Te", "Volim Te", "Të Dua",
-            "Seni Seviýärin", "Mən Səni Sevirəm", "Men Seni Sevaman", "Süyöm Seni",
-            "Mahal Kita", "Aku Cinta Kamu", "Saya Cintakan Mu", "Tôi Yêu Bạn",
-            "Phom Rak Khun", "Chan Rak Khun", "Bong Salang Oun", "Khoi Hak Chao",
-            "Main Tumse Pyaar Karta Hoon", "Ami Tomake Bhalobashi", "Nenu Ninnu Premistunnanu",
-            "Saranghamnida", "Nakupenda", "Ninapenda Wewe", "Bi Chamd Khairtai",
-            "Techihila", "T'estimo", "Amote", "Maite Zaitut",
-            "S'agapo Poli", "Te Dua Shume", "Mi Amas Vin", "Je T'adore",
-            "Te Quiero Mucho", "Ti Voglio Bene", "Ich Hab' Dich Lieb", "Mina Armastan Sind"
+            "Seni Seviyorum", "I Love You", "Je T'aime", "Te Amo", "Ti Amo", "Ich Liebe Dich", 
+            "Eu Te Amo", "Jag Älskar Dig", "Jeg Elsker Deg", "Kocham Cię", "Szeretlek", 
+            "Të Dua", "T'estimo", "Volim Te", "Mina Armastan Sind", "Miluji Tě", 
+            "Es Tevi Mīlu", "Aš Tave Myliu", "Ég elska þig", "Rakkaus", "Mám ťa rád",
+            "Я Тебя Люблю", "Я люблю тебе", "Obicham Te", "Nakupenda", "Ek het jou lief",
+            "Ndiyakuthanda", "Ndimakukonda", "Monam", "Ngiyakuthanda", "Inhobbok",
+            "사랑해", "愛してる", "我爱你", "Mahal Kita", "Aku Cinta Kamu", 
+            "Tôi Yêu Bạn", "Phom Rak Khun", "Bi Chamd Khairtai", "Timi lai maya garchu",
+            "Main Tumse Pyaar Karta Hoon", "Ami Tomake Bhalobashi", "Nenu Ninnu Premistunnanu", 
+            "Nan Unnai Kadhalikiren", "Hum Tumhe Pyaar Karte Hain", "Tujhe Prem Karto", 
+            "أحبك", "دوستت دارم", "אני אוהב אותך", "Mən Səni Sevirəm", "Men Seni Sevaman", 
+            "Сені сүйемін", "Tsekh Re", "Seni Seviýärin", "Ես քեզ սիրում եմ", "მიყვარხარ",
+            "Aime-te", "T'involo", "E te aloha ia 'oe", "Palangga ko ikaw",
+            "Aloha Au Ia 'Oe", "Sannu Pyar Karoo", "Ego alu gi", "Mi Amas Vin",
+            "Te Quiero Mucho", "Ich Hab' Dich Lieb", "Maite Zaitut", "Isinumi",
+            "Seni Seviyorum"
         ];
 
         let shootingStars = [];
         let backgroundStars = [];
-        
-        // ŞERİT SİSTEMİ (Çakışmayı önlemek için)
-        const LANE_COUNT = 5; // Ekranı 5 dikey şeride böl
-        let lanes = []; // Hangi şerit ne zaman müsait
+        let particles = []; 
+        const MAX_SHOOTING_STARS = 6;
 
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            // Şeritleri sıfırla
-            lanes = new Array(LANE_COUNT).fill(0);
+        // --- Yardımcı Renk Fonksiyonları ---
+        function hexToRgb(hex) {
+            const bigint = parseInt(hex.slice(1), 16);
+            const r = (bigint >> 16) & 255;
+            const g = (bigint >> 8) & 255;
+            const b = bigint & 255;
+            return { r, g, b };
         }
-        window.addEventListener('resize', resize);
-        resize();
 
-        // Sabit Arka Plan Yıldızları
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        // Renk tonunu veya parlaklığını ayarlar
+        function adjustColor(hex, lum) {
+            const { r, g, b } = hexToRgb(hex);
+            let R = r, G = g, B = b;
+
+            // Parlaklık ayarı
+            R = Math.min(255, Math.max(0, R + (R * lum)));
+            G = Math.min(255, Math.max(0, G + (G * lum)));
+            B = Math.min(255, Math.max(0, B + (B * lum)));
+
+            // Renk tonunda hafif sapma (isteğe bağlı, daha fazla çeşitlilik için)
+            const hueShift = (Math.random() - 0.5) * 30; // -15 ila +15 derece
+            // Bu kısım için daha gelişmiş HSV dönüşümleri gerekir, 
+            // şimdilik sadece RGB parlaklık ile yetinelim.
+
+            return rgbToHex(Math.round(R), Math.round(G), Math.round(B));
+        }
+
+        // --- Sınıf Tanımları ---
         class Star {
             constructor() {
                 this.x = Math.random() * width;
@@ -129,8 +138,10 @@
                 this.alpha = Math.random();
             }
             update() {
-                this.alpha += this.blinkSpeed;
-                if (this.alpha > 1 || this.alpha < 0.2) this.blinkSpeed *= -1;
+                if (this.blinkSpeed !== 0) {
+                    this.alpha += this.blinkSpeed;
+                    if (this.alpha > 1 || this.alpha < 0.2) this.blinkSpeed *= -1;
+                }
             }
             draw() {
                 ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
@@ -140,44 +151,71 @@
             }
         }
 
-        // Kayan Yazılı Yıldızlar
+        class Particle {
+            constructor(x, y, baseColor, meteorSpeed, angle) {
+                this.x = x;
+                this.y = y;
+                // ✨ RENK ÇEŞİTLİLİĞİ: Ana renkten türetilen dinamik renkler
+                this.color = adjustColor(baseColor, (Math.random() - 0.5) * 0.4); // %-20 ila %20 parlaklık farkı
+                
+                // ✨ BOYUT DİNAMİĞİ: Meteor hızına ve rastgeleliğe bağlı boyut
+                this.size = (Math.random() * 0.5 + 0.5) * (meteorSpeed / 2); // Hız arttıkça daha büyük parçacık
+                this.alpha = 1;
+                this.decay = Math.random() * 0.02 + 0.01; 
+                this.speed = meteorSpeed * (Math.random() * 0.5 + 0.2); 
+                this.angle = angle + (Math.random() * 0.6 - 0.3); 
+            }
+
+            update() {
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                this.alpha -= this.decay;
+            }
+
+            draw() {
+                const rgb = hexToRgb(this.color);
+                ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+
         class ShootingStar {
             constructor() {
                 this.reset();
             }
 
             reset() {
-                // Müsait bir şerit bul
-                let laneIndex = Math.floor(Math.random() * LANE_COUNT);
+                const estimatedMaxWidth = 300; 
+                this.x = estimatedMaxWidth + Math.random() * (width - estimatedMaxWidth * 2); 
+                this.y = -100 - Math.random() * 200; 
                 
-                // Şeridin ortasını hesapla
-                const laneWidth = width / LANE_COUNT;
-                this.x = (laneIndex * laneWidth) + (laneWidth / 2);
-                
-                // Hafif sağa sola sapma payı (Doğallık için, ama çok değil)
-                this.x += (Math.random() - 0.5) * (laneWidth * 0.4);
-
-                this.y = -100 - Math.random() * 200; // Ekranın üstünden rastgele uzaklıkta başla
-                this.speed = Math.random() * 1.5 + 1; // YAVAŞ HIZ (1 ile 2.5 arası)
-                
-                // Düz aşağı insin (Okunaklı olması için)
-                this.angle = Math.PI / 2; 
+                this.speed = Math.random() * 1.5 + 1.0; 
+                this.angle = (Math.PI / 2) + (Math.random() * 0.8 - 0.4); 
 
                 this.text = lovePhrases[Math.floor(Math.random() * lovePhrases.length)];
                 
-                // Renkler (Pastel ve Parlak)
                 const colors = ['#ff4b6e', '#64b5f6', '#ba68c8', '#ffd54f', '#ffffff', '#4db6ac'];
                 this.color = colors[Math.floor(Math.random() * colors.length)];
                 
-                // Mobil için ideal font boyutu
-                this.fontSize = Math.random() * 6 + 18; // 18px - 24px
+                this.fontSize = Math.random() * 6 + 18;
             }
 
             update() {
-                this.y += this.speed;
+                const prevX = this.x; 
+                const prevY = this.y;
 
-                // Ekrandan tamamen çıkınca resetle
-                if (this.y > height + 100) {
+                this.x += Math.cos(this.angle) * this.speed * 0.5; 
+                this.y += Math.sin(this.angle) * this.speed;      
+
+                // ✨ İZ BIRAKMA: Daha sık parçacık oluştur
+                if (Math.random() < 0.9) { // Oluşturma sıklığı artırıldı
+                    particles.push(new Particle(prevX, prevY, this.color, this.speed, this.angle));
+                }
+
+                if (this.y > height + 100 || this.x < -200 || this.x > width + 200) {
                     this.reset();
                 }
             }
@@ -186,7 +224,7 @@
                 ctx.save();
                 ctx.translate(this.x, this.y);
 
-                // 1. YILDIZ BAŞI (Parlak)
+                // YILDIZ BAŞI
                 ctx.beginPath();
                 ctx.arc(0, 0, 4, 0, Math.PI * 2);
                 ctx.fillStyle = '#ffffff';
@@ -194,55 +232,69 @@
                 ctx.shadowColor = this.color;
                 ctx.fill();
 
-                // 2. KUYRUK (İz)
-                const gradient = ctx.createLinearGradient(0, 0, 0, -60);
-                gradient.addColorStop(0, this.color);
-                gradient.addColorStop(1, 'rgba(0,0,0,0)');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(-1, 0, 2, -60);
+                // KUYRUK (İz)
+                // Bu kısım artık ana kuyruk yerine, parçacıkların kendisi tarafından oluşturuluyor.
+                // İsterseniz burayı bırakabilir veya çok hafif bir çizgiye dönüştürebilirsiniz.
+                // Şu anki hali parçacıklarla birlikte daha dolgun bir iz bırakacaktır.
 
-                // 3. METİN (Yıldızın biraz arkasından gelir)
+                // METİN
                 ctx.shadowBlur = 10;
                 ctx.shadowColor = this.color;
                 ctx.fillStyle = this.color;
                 ctx.font = `bold ${this.fontSize}px 'Outfit', sans-serif`;
                 ctx.textAlign = "center";
-                // Yazıyı dikey yazmak yerine yatay ama 90 derece döndürülmüş gibi değil, 
-                // düz okunaklı şekilde yıldızın hemen üstüne (arkasına) koyuyoruz.
                 ctx.fillText(this.text, 0, -25); 
 
                 ctx.restore();
             }
         }
+        
+        // --- Fonksiyonlar ---
 
-        // Başlatma
-        function init() {
-            // 300 Sabit Yıldız
-            for (let i = 0; i < 300; i++) backgroundStars.push(new Star());
+        function initBackgroundStars() {
+            const starCount = (width < 768) ? 150 : 300; 
+            for (let i = 0; i < starCount; i++) backgroundStars.push(new Star());
+        }
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
             
-            // 6 Adet Kayan Yazı (Aynı anda ekranı boğmasın diye az tuttum)
-            // Her biri farklı şeritlere dağılacak
-            for (let i = 0; i < 6; i++) {
-                // Başlangıçta hepsi aynı anda inmesin diye gecikmeli başlatma simülasyonu
+            backgroundStars = [];
+            initBackgroundStars(); 
+            shootingStars.forEach(star => star.reset());
+            particles = []; 
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function init() {
+            initBackgroundStars();
+            
+            for (let i = 0; i < MAX_SHOOTING_STARS; i++) {
                 const star = new ShootingStar();
-                star.y = Math.random() * height; // Ekrana dağıt
+                star.y = Math.random() * height; 
                 shootingStars.push(star);
             }
         }
 
-        // Animasyon Döngüsü
         function animate() {
-            // Hafif iz efekti (Motion Blur) - Çok hafif tuttum ki yazılar bulanıklaşmasın
-            ctx.fillStyle = 'rgba(0, 0, 5, 0.3)';
+            ctx.fillStyle = 'rgba(0, 0, 5, 0.3)'; // Hafif iz efekti
             ctx.fillRect(0, 0, width, height);
 
-            // Arka plan yıldızları
             backgroundStars.forEach(star => {
                 star.update();
                 star.draw();
             });
 
-            // Kayan yazılar
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].alpha <= 0) {
+                    particles.splice(i, 1); 
+                }
+            }
+
             shootingStars.forEach(shootingStar => {
                 shootingStar.update();
                 shootingStar.draw();

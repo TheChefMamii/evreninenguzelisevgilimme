@@ -94,21 +94,51 @@
     <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
 
     <div class="header">
-        <h1>Gelişim Günlüğü 🚀</h1>
+        <h1>Güncellemeler</h1>
         <p>Senin için her gün daha iyisi...</p>
     </div>
 
     <div class="timeline">
 
         <div class="update-card latest">
+            <span class="version-badge">v2.0 - EVRENSEL AŞK & TASARIM</span>
+            <span class="date">Yeni</span>
+            <span class="card-title">Gökyüzü ve Yeni Görünüm 🌌</span>
+            <ul>
+                <li><strong>Evrensel Aşkım Sayfası:</strong> Meteor yağmuru ve 80+ farklı dilde "Seni Seviyorum" mesajları eklendi.(azbile)</li>
+                <li><strong>Yeni Tasarım:</strong> Tüm sitenin tasarımı yenilendi.</li>
+                <li><strong>Performans:</strong> Sayfa geçişleri ve animasyonlar mobil için hızlandırıldı.</li>
+            </ul>
+        </div>
+
+        <div class="update-card">
+            <span class="version-badge">v1.5 - OYUN SALONU</span>
+            <span class="date">Dün</span>
+            <span class="card-title">Eğlence Zamanı 🎮</span>
+            <ul>
+                <li><strong>Kalp Avcısı (Snake):</strong> Yılan oyunu eklendi. Elmas toplama ve mobil kontroller (Swipe/Tuşlar) aktif.</li>
+            </ul>
+        </div>
+
+        <div class="update-card">
+            <span class="version-badge">v1.2 - SÜRPRİZLER</span>
+            <span class="date">Geçen Hafta</span>
+            <span class="card-title">Küçük Dokunuşlar ✨</span>
+            <ul>
+                <li><strong>O Çiçek Kim?:</strong> Radar taraması ile dünyanın en güzel çiçeğini bulan özel sayfa eklendi.</li>
+                <li><strong>Biliyor Muydun?:</strong> "Hayır" butonunun kaçtığı eğlenceli mini oyun eklendi.</li>
+            </ul>
+        </div>
+
+        <div class="update-card">
             <span class="version-badge">v1.0 - BAŞLANGIÇ</span>
-            <span class="date">Bugün</span>
+            <span class="date">İlk Gün</span>
             <span class="card-title">Sitemiz Açıldı ❤️</span>
             <ul>
-                <li> Proje senin için hayata geçirildiii</li>
-                <li> Sayacımız sonsuza kadar akıyor..</li>
-                <li> Arka plan müziği eklendi.</li>
-                <li> Sana özel tema tasarlandı.</li>
+                <li>Proje senin için hayata geçirildi.</li>
+                <li>Sonsuz sayaç (Gün, Saat, Dakika, Saniye) eklendi.</li>
+                <li>Arka plan müziği entegre edildi.</li>
+                <li>Yapılacaklar listesi oluşturuldu.</li>
             </ul>
         </div>
 
@@ -116,9 +146,10 @@
 
     <script>
         // SAYFA AÇILINCA BİLDİRİMİ TEMİZLE
-        // Buradaki versiyon numarası ile script.js'deki numara AYNI olmalı.
+        // Buradaki versiyon numarası ile script.js'deki numara mantığı eşleşmeli.
         window.onload = function() {
-            const CURRENT_VERSION = "1.0"; 
+            // Son versiyonu kaydet ki ana sayfadaki kırmızı nokta kalksın
+            const CURRENT_VERSION = "2.0"; 
             localStorage.setItem('lastSeenVersion', CURRENT_VERSION);
         };
     </script>
