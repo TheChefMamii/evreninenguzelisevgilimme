@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cips Oyunu</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Poppins:wght@400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #ffeaf2;
+            background-image: radial-gradient(#ffc2d1 1px, transparent 1px);
+            background-size: 20px 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        /* Üst Navigasyon */
+        .top-nav {
+            position: absolute;
+            top: 15px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: #ffffff;
+            border: 2px solid #ff85a2;
+            padding: 8px 12px;
+            border-radius: 15px;
+            color: #ff4d6d;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            box-shadow: 3px 3px 0px #ff85a2;
+            cursor: pointer;
+        }
+
+        .game-container {
+            background: #ffffff;
+            border: 4px solid #ff85a2;
+            border-radius: 40px;
+            padding: 20px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 10px 10px 0px #ff85a2;
+            position: relative;
+            margin-top: 30px;
+        }
+
+        h1 {
+            font-family: 'Bubblegum Sans', cursive;
+            text-align: center;
+            color: #ff4d6d;
+            font-size: 35px;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 0px #ffc2d1;
+        }
+
+        .phase-info {
+            text-align: center;
+            color: #ff758f;
+            font-size: 14px;
+            margin-bottom: 15px;
+            background: #fff0f3;
+            padding: 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            border: 2px dashed #ffb3c1;
+        }
+
+        .lives {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff0f3;
+            border-radius: 30px;
+            border: 2px solid #ffccd5;
+        }
+
+        .life-counter { text-align: center; }
+        .life-counter h3 {
+            font-size: 12px;
+            color: #ff4d6d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        .hearts { font-size: 20px; letter-spacing: 2px; }
+
+        .game-area { margin-bottom: 15px; }
+
+        .area-title {
+            text-align: center;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ffffff;
+            padding: 6px 15px;
+            border-radius: 50px;
+            display: inline-block;
+            width: auto;
+            margin-left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .player-area .area-title { background: #ff758f; box-shadow: 0 4px 0 #c9184a; }
+        .bot-area .area-title { background: #59a5f5; box-shadow: 0 4px 0 #2a6fdb; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            background: #fdf2f5;
+            padding: 15px;
+            border-radius: 25px;
+        }
+
+        .chip {
+            aspect-ratio: 1;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: #ffffff;
+            border: 3px solid #ffccd5;
+            box-shadow: 0 5px 0 #ffccd5;
+        }
+
+        .chip:active { transform: translateY(3px); box-shadow: 0 2px 0 #ffccd5; }
+
+        .chip.selected {
+            background: #ffecf0;
+            border-color: #ff4d6d;
+            box-shadow: 0 5px 0 #ff4d6d;
+        }
+
+        .chip.revealed { background: #fff; border-color: #ffb3c1; }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            animation: popIn 0.3s ease;
+        }
+        @keyframes popIn { from { transform: translate(-50%, -50px); opacity: 0; } }
+
+        .message.success { background: #4caf50; }
+        .message.danger { background: #ff4d6d; }
+        .message.info { background: #59a5f5; }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-family: 'Bubblegum Sans', cursive;
+            cursor: pointer;
+            background: #ff4d6d;
+            color: white;
+            box-shadow: 0 6px 0 #c9184a;
+            transition: all 0.1s;
+            margin-top: 10px;
+        }
+
+        .btn:hover { background: #ff758f; }
+        .btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #c9184a; }
+
+        .game-over {
+            text-align: center;
+            padding: 20px;
+            border-radius: 30px;
+            background: #fff0f3;
+            border: 3px solid #ff4d6d;
+            margin-bottom: 15px;
+        }
+
+        .game-over h2 { color: #ff4d6d; font-family: 'Bubblegum Sans', cursive; font-size: 30px; }
+
+        /* İstatistik Modalı */
+        #statsModal {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 25px;
+            border-radius: 30px;
+            border: 4px solid #ff85a2;
+            z-index: 2000;
+            width: 85%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 1500;
+        }
+
+        .stat-line { margin: 15px 0; color: #ff4d6d; font-weight: 600; font-size: 16px; border-bottom: 1px dashed #ffccd5; padding-bottom: 5px; }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 400px) {
+            h1 { font-size: 28px; }
+            .grid { gap: 8px; padding: 10px; }
+            .chip { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <a href="index.html" class="nav-btn">🏠 Index'e Dön</a>
+        <div class="nav-btn" onclick="toggleStats()">📊 İstatistikler</div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="toggleStats()"></div>
+    <div id="statsModal">
+        <h2 style="font-family: 'Bubblegum Sans'; color: #ff4d6d; margin-bottom: 10px;">istatistikler</h2>
+        <div class="stat-line">Galibiyetlerin: <span id="statWins">0</span></div>
+        <div class="stat-line">Senin Kazandığınn: <span id="statPlayerKisses">0</span> 💋</div>
+        <div class="stat-line">Mami'nin Kazandığııı: <span id="statBotKisses">0</span> 💋</div>
+        <button class="btn" onclick="toggleStats()" style="padding: 10px; font-size: 14px; width: 80%; margin: 10px auto;">Kapat</button>
+    </div>
+
+    <div class="game-container">
+        <h1>💋Cips💋</h1>
+        
+        <div class="phase-info" id="phaseInfo">Mami_Botun alanında 3 kutuya tuzak kur!</div>
+        
+        <div class="lives">
+            <div class="life-counter">  
+                <h3>Güzelim</h3>
+                <div class="hearts" id="playerLives">❤️❤️❤️</div>
+            </div>
+            <div class="life-counter">
+                <h3>Mami</h3>
+                <div class="hearts" id="botLives">❤️❤️❤️</div>
+            </div>
+        </div>
+
+        <div id="messageBox" class="message hidden"></div>
+        <div id="gameOverBox" class="hidden"></div>
+
+        <div class="game-area bot-area" id="botAreaContainer">
+            <div class="area-title">Mami_Bot🤖</div>
+            <div class="grid" id="botGrid"></div>
+        </div>
+
+        <div class="game-area player-area hidden" id="playerAreaContainer">
+            <div class="area-title">Evreninnnengüzelii💖</div>
+            <div class="grid" id="playerGrid"></div>
+        </div>
+
+        <button class="btn hidden" id="startBtn">Tuzakları Kurdum bitanemm</button>
+        <button class="btn hidden" id="resetBtn">Tekrar❤️</button>
+    </div>
+
+    <script>
+        const state = {
+            phase: 'setup', 
+            playerTraps: [],
+            botTraps: [],
+            playerLives: 3,
+            botLives: 3,
+            playerRevealed: [],
+            botRevealed: [],
+            selectedTraps: 0
+        };
+
+        // İstatistikleri Yükle (Sayılarda hata olmaması için 0 varsayılanı)
+        let totalWins = parseInt(localStorage.getItem('game_wins')) || 0;
+        let playerKisses = parseInt(localStorage.getItem('player_kisses')) || 0;
+        let botKisses = parseInt(localStorage.getItem('bot_kisses')) || 0;
+
+        function updateStats(win = 0, pkiss = 0, bkiss = 0) {
+            totalWins += win;
+            playerKisses += pkiss;
+            botKisses += bkiss;
+            localStorage.setItem('game_wins', totalWins);
+            localStorage.setItem('player_kisses', playerKisses);
+            localStorage.setItem('bot_kisses', botKisses);
+        }
+
+        function toggleStats() {
+            const modal = document.getElementById('statsModal');
+            const overlay = document.getElementById('overlay');
+            document.getElementById('statWins').textContent = totalWins;
+            document.getElementById('statPlayerKisses').textContent = playerKisses;
+            document.getElementById('statBotKisses').textContent = botKisses;
+            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+            overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function init() {
+            createGrids();
+            updatePhaseInfo();
+            document.getElementById('botAreaContainer').classList.remove('hidden');
+            document.getElementById('playerAreaContainer').classList.add('hidden');
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('resetBtn').classList.add('hidden');
+        }
+
+        function createGrids() {
+            const botGrid = document.getElementById('botGrid');
+            const playerGrid = document.getElementById('playerGrid');
+            botGrid.innerHTML = '';
+            playerGrid.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                botGrid.appendChild(createChip(i, 'bot'));
+                playerGrid.appendChild(createChip(i, 'player'));
+            }
+        }
+
+        function createChip(index, area) {
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.dataset.index = index;
+            chip.dataset.area = area;
+            chip.textContent = '🍟'; 
+            chip.addEventListener('click', () => handleChipClick(index, area));
+            return chip;
+        }
+
+        function handleChipClick(index, area) {
+            if (state.phase === 'setup' && area === 'bot') {
+                if (state.playerTraps.includes(index)) {
+                    state.playerTraps = state.playerTraps.filter(i => i !== index);
+                    state.selectedTraps--;
+                } else if (state.selectedTraps < 3) {
+                    state.playerTraps.push(index);
+                    state.selectedTraps++;
+                }
+                updateBotGridVisuals();
+                if (state.selectedTraps === 3) document.getElementById('startBtn').classList.remove('hidden');
+                else document.getElementById('startBtn').classList.add('hidden');
+            } else if (state.phase === 'playing-player' && area === 'player') {
+                if (!state.playerRevealed.includes(index)) playerEatsChip(index);
+            }
+        }
+
+        function updateBotGridVisuals() {
+            const botChips = document.querySelectorAll('[data-area="bot"]');
+            botChips.forEach((chip, idx) => {
+                if (state.playerTraps.includes(idx)) {
+                    chip.classList.add('selected');
+                    chip.textContent = '💋';
+                } else {
+                    chip.classList.remove('selected');
+                    chip.textContent = '🍟';
+                }
+            });
+            updatePhaseInfo();
+        }
+
+        function updatePhaseInfo() {
+            const info = document.getElementById('phaseInfo');
+            if (state.phase === 'setup') info.textContent = `Mami_Bot'un alanında 3 kutuya tuzak kur (${state.selectedTraps}/3)`;
+            else if (state.phase === 'playing-player') info.textContent = 'Kendi alanından bir cips ye bakalım...';
+            else if (state.phase === 'playing-bot') info.textContent = 'Mami_Bot düşünüyorr(sadeceseni)...';
+        }
+
+        function startGame() {
+            while (state.botTraps.length < 3) {
+                const randomIndex = Math.floor(Math.random() * 9);
+                if (!state.botTraps.includes(randomIndex)) state.botTraps.push(randomIndex);
+            }
+            const botChips = document.querySelectorAll('[data-area="bot"]');
+            botChips.forEach(chip => { chip.textContent = '🍟'; chip.classList.remove('selected'); });
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('botAreaContainer').classList.add('hidden');
+            setTimeout(() => {
+                document.getElementById('playerAreaContainer').classList.remove('hidden');
+                state.phase = 'playing-player';
+                updatePhaseInfo();
+                showMessage('bolşanss❤️', 'info');
+            }, 600);
+        }
+
+        function playerEatsChip(index) {
+            state.playerRevealed.push(index);
+            const chip = document.querySelector(`[data-area="player"][data-index="${index}"]`);
+            chip.classList.add('revealed');
+            chip.style.pointerEvents = 'none';
+
+            if (state.botTraps.includes(index)) {
+                chip.textContent = '💋';
+                state.playerLives--;
+                updateLives();
+                updateStats(0, 0, 1); // Mami_Bot kazandı 1 öpücük
+                showMessage('Öpücükborçlandınn hihihi ', 'danger');
+                sendTelegramMessage('🔔Kazancın: 1 AdetÖpücükk \nDurum: Tahsilat Bekleniyor...');
+            } else {
+                chip.textContent = '😋';
+                showMessage('tühtemiz...', 'success');
+            }
+
+            setTimeout(() => {
+                if (checkGameOver()) return;
+                switchToBotTurn();
+            }, 1800);
+        }
+
+        function switchToBotTurn() {
+            state.phase = 'playing-bot';
+            document.getElementById('playerAreaContainer').classList.add('hidden');
+            setTimeout(() => {
+                document.getElementById('botAreaContainer').classList.remove('hidden');
+                updatePhaseInfo();
+                setTimeout(() => botEatsChip(), 1500);
+            }, 600);
+        }
+
+        function botEatsChip() {
+            const available = [];
+            for (let i = 0; i < 9; i++) if (!state.botRevealed.includes(i)) available.push(i);
+            const randomIndex = available[Math.floor(Math.random() * available.length)];
+            state.botRevealed.push(randomIndex);
+
+            const chip = document.querySelector(`[data-area="bot"][data-index="${randomIndex}"]`);
+            chip.classList.add('revealed');
+
+            if (state.playerTraps.includes(randomIndex)) {
+                chip.textContent = '💋';
+                state.botLives--;
+                updateLives();
+                updateStats(0, 1, 0); // Sen kazandın 1 öpücük
+                showMessage('Biröpücükkazandınnnnnn 🤩❤️', 'success');
+                sendTelegramMessage('📦 SİPARİŞ TESLİMAT! \n1 adet öpücükk');
+            } else {
+                chip.textContent = '😋';
+                showMessage('Bot temiz cips yedi şanslı çocuk(çünküsanasahipp)...', 'info');
+            }
+
+            setTimeout(() => {
+                if (checkGameOver()) return;
+                switchToPlayerTurn();
+            }, 1800);
+        }
+
+        function switchToPlayerTurn() {
+            state.phase = 'playing-player';
+            document.getElementById('botAreaContainer').classList.add('hidden');
+            setTimeout(() => {
+                document.getElementById('playerAreaContainer').classList.remove('hidden');
+                updatePhaseInfo();
+            }, 600);
+        }
+
+        function updateLives() {
+            document.getElementById('playerLives').textContent = '❤️'.repeat(state.playerLives) + '🖤'.repeat(3 - state.playerLives);
+            document.getElementById('botLives').textContent = '❤️'.repeat(state.botLives) + '🖤'.repeat(3 - state.botLives);
+        }
+
+        function checkGameOver() {
+            if (state.playerLives === 0) { gameOver('Mami_BOT kazandı'); return true; }
+            if (state.botLives === 0) { 
+                gameOver('güzelimm kazandınn<3'); 
+                updateStats(1, 0, 0); 
+                return true; 
+            }
+            return false;
+        }
+
+        function gameOver(message) {
+            state.phase = 'gameover';
+            const box = document.getElementById('gameOverBox');
+            box.className = 'game-over';
+            box.innerHTML = `<h2>🎮 Oyun Bitti!</h2><p>${message}</p>`;
+            box.classList.remove('hidden');
+            document.getElementById('resetBtn').classList.remove('hidden');
+            document.getElementById('playerAreaContainer').classList.remove('hidden');
+            document.getElementById('botAreaContainer').classList.remove('hidden');
+        }
+
+        function showMessage(text, type) {
+            const msgBox = document.getElementById('messageBox');
+            msgBox.textContent = text;
+            msgBox.className = `message ${type}`;
+            msgBox.classList.remove('hidden');
+            setTimeout(() => msgBox.classList.add('hidden'), 2000);
+        }
+
+        function sendTelegramMessage(message) {
+            if (typeof sendTelegram === 'function') {
+                const skoraGoreMesaj = `${message}\n\n📊 Güncel Skor:\nDünyalar güzeli sevgilimm: ${state.playerLives} Can | Mami_BOT: ${state.botLives} Can`;
+                sendTelegram(skoraGoreMesaj);
+            }
+        }
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('resetBtn').addEventListener('click', () => location.reload());
+        init();
+    </script>
+    <script src="telegram.js"></script>
+</body>
+</html>

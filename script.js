@@ -33,16 +33,19 @@ function markUpdatesRead() {
 
 /* --- TEMA LİSTESİ --- */
 const themes = [
-    { id: 0, name: "Soft Pink (Default)", primary: "#ff4b6e", bg: "linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%)" },
-    { id: 1, name: "Hot Pink", primary: "#ff0066", bg: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)" },
-    { id: 2, name: "Rose Gold", primary: "#b76e79", bg: "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)" },
-    { id: 3, name: "Ocean Blue", primary: "#00b4db", bg: "linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)" },
-    { id: 4, name: "Mint Love", primary: "#00b09b", bg: "linear-gradient(135deg, #d2ccc4 0%, #2f80ed 100%)" },
-    { id: 5, name: "Galaxy Purple", primary: "#8e2de2", bg: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)", text: "#333" },
-    { id: 6, name: "Sunset", primary: "#ff9966", bg: "linear-gradient(135deg, #f5af19 0%, #f12711 100%)" },
-    { id: 7, name: "Classic Red", primary: "#ff0000", bg: "linear-gradient(135deg, #ff9966 0%, #ff5e62 100%)" },
-    { id: 8, name: "Dark Mode", primary: "#bb86fc", bg: "#121212", text: "#ffffff", glass: "rgba(255,255,255,0.1)", nav: "#1f1f1f" },
-    { id: 9, name: "Event (Dynamic)", primary: "#d4af37", bg: "linear-gradient(to right, #bf953f, #fcf6ba)", isEvent: true }
+    { id: 0, name: "Romantik Pembe (Varsayılan)", primary: "#f8bbd9", bg: "linear-gradient(135deg, #fff0f3 0%, #ffe4e9 100%)" },
+    { id: 1, name: "Aşkın Kırmızısı", primary: "#e91e63", bg: "linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%)" },
+    { id: 2, name: "Gül Altını", primary: "#d4a574", bg: "linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%)" },
+    { id: 3, name: "Okyanus Mavisi", primary: "#4fc3f7", bg: "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)" },
+    { id: 4, name: "Nane Yeşili", primary: "#4db6ac", bg: "linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%)" },
+    { id: 5, name: "Gece Moru", primary: "#9c27b0", bg: "linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)" },
+    { id: 6, name: "Gün Batımı", primary: "#ff9800", bg: "linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)" },
+    { id: 7, name: "Klasik Kırmızı", primary: "#f44336", bg: "linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%)" },
+    { id: 8, name: "Gece Modu", primary: "#ba68c8", bg: "#1a1a1a", text: "#ffffff", glass: "rgba(255,255,255,0.1)", nav: "#2d2d2d" },
+    { id: 9, name: "Yılbaşı Sihri", primary: "#4caf50", bg: "linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%)", isEvent: true },
+    { id: 10, name: "Sevgililer Günü", primary: "#e91e63", bg: "linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%)", isEvent: true },
+    { id: 11, name: "Doğum Günü", primary: "#ff9800", bg: "linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)", isEvent: true },
+    { id: 12, name: "Anniversary", primary: "#9c27b0", bg: "linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)", isEvent: true }
 ];
 
 /* --- BAŞLANGIÇ --- */
@@ -51,24 +54,32 @@ window.addEventListener("load", function() {
     initTheme();
     getAntalyaWeather(); // Hava Durumunu Başlat
     checkUpdates(); // Güncellemeleri Kontrol Et
-    
+
     setTimeout(function() {
         document.getElementById("loading-screen").style.opacity = "0";
         setTimeout(() => {
             document.getElementById("loading-screen").style.display = "none";
             document.getElementById("welcome-screen").classList.remove("hidden");
-            
-            setTimeout(() => {
+
+            // Dokunma olayını dinle
+            const welcomeScreen = document.getElementById("welcome-screen");
+            const handleTouch = () => {
+                welcomeScreen.removeEventListener('click', handleTouch);
+                welcomeScreen.removeEventListener('touchstart', handleTouch);
+
                 const appContainer = document.getElementById("app-container");
                 document.getElementById("welcome-screen").style.opacity = "0";
                 setTimeout(() => {
                     document.getElementById("welcome-screen").style.display = "none";
-                    appContainer.classList.remove("hidden"); 
+                    appContainer.classList.remove("hidden");
                     appContainer.style.display = "block";
-                }, 800); 
-            }, 2500); 
-        }, 800); 
-    }, 3000); 
+                }, 800);
+            };
+
+            welcomeScreen.addEventListener('click', handleTouch);
+            welcomeScreen.addEventListener('touchstart', handleTouch);
+        }, 800);
+    }, 3000);
 });
 
 /* --- ANTALYA HAVA DURUMU (GitHub Fix + 20 Derece Kuralı) --- */
@@ -123,12 +134,19 @@ function initTheme() {
     const day = today.getDate();
     let eventThemeId = null;
 
-    if(month === 10 && day === 31) eventThemeId = 6;
-    if(month === 2 && day === 14) eventThemeId = 1;
-    if((month === 12 && day === 31) || (month === 1 && day === 1)) eventThemeId = 9;
+    // Özel günler için otomatik tema değişimi
+    if(month === 10 && day === 31) eventThemeId = 6; // Halloween - Gün Batımı
+    if(month === 2 && day === 14) eventThemeId = 10; // Sevgililer Günü
+    if((month === 12 && day === 31) || (month === 1 && day === 1)) eventThemeId = 9; // Yılbaşı
+    if(month === 5 && day === 30) eventThemeId = 11; // Doğum Günü (örnek tarih, değiştirilebilir)
+    if(month === 3 && day === 15) eventThemeId = 12; // Anniversary (örnek tarih, değiştirilebilir)
+    if(month === 4 && day === 23) eventThemeId = 9; // Ulusal Egemenlik ve Çocuk Bayramı - Yılbaşı teması
+    if(month === 5 && day === 19) eventThemeId = 10; // Atatürk'ü Anma Gençlik ve Spor Bayramı - Sevgililer teması
+    if(month === 8 && day === 30) eventThemeId = 6; // Zafer Bayramı - Gün Batımı
+    if(month === 10 && day === 29) eventThemeId = 7; // Cumhuriyet Bayramı - Kırmızı
 
     let savedTheme = localStorage.getItem("selectedTheme");
-    
+
     if(eventThemeId !== null && !savedTheme) {
         applyTheme(eventThemeId);
     } else if(savedTheme) {
@@ -231,14 +249,189 @@ function switchTab(tabName) {
     if(tabName === 'home') {
         document.getElementById('home-page').classList.add('active');
         document.querySelector('.nav-item:nth-child(1)').classList.add('active');
-    } else {
+    } else if(tabName === 'settings') {
         document.getElementById('settings-page').classList.add('active');
         document.querySelector('.nav-item:nth-child(2)').classList.add('active');
+    } else if(tabName === 'game') {
+        document.getElementById('game-page').classList.add('active');
+        initGame();
     }
+}
+
+/* --- AŞKIN CİPSLERİ OYUNU --- */
+let gameState = {
+    playerHearts: 3,
+    botHearts: 3,
+    currentTurn: 'player', // 'player' or 'bot'
+    chips: [],
+    gameOver: false
+};
+
+function initGame() {
+    gameState = {
+        playerHearts: 3,
+        botHearts: 3,
+        currentTurn: 'player',
+        chips: [],
+        gameOver: false
+    };
+
+    // 9 cips oluştur, 3'ü bomba
+    const bombPositions = [];
+    while(bombPositions.length < 3) {
+        const pos = Math.floor(Math.random() * 9);
+        if(!bombPositions.includes(pos)) bombPositions.push(pos);
+    }
+
+    for(let i = 0; i < 9; i++) {
+        gameState.chips.push({
+            isBomb: bombPositions.includes(i),
+            opened: false
+        });
+    }
+
+    updateGameUI();
+    updateGameMessage('Sıra sende! Bir cips seç 💋');
+}
+
+function updateGameUI() {
+    // Kalpleri güncelle
+    const playerHeartsEl = document.querySelector('.player-info:first-child .hearts');
+    const botHeartsEl = document.querySelector('.player-info:last-child .hearts');
+
+    playerHeartsEl.innerHTML = '';
+    botHeartsEl.innerHTML = '';
+
+    for(let i = 0; i < 3; i++) {
+        const playerHeart = document.createElement('span');
+        playerHeart.className = 'heart';
+        playerHeart.textContent = '❤️';
+        if(i >= gameState.playerHearts) playerHeart.classList.add('lost');
+        playerHeartsEl.appendChild(playerHeart);
+
+        const botHeart = document.createElement('span');
+        botHeart.className = 'heart';
+        botHeart.textContent = '❤️';
+        if(i >= gameState.botHearts) botHeart.classList.add('lost');
+        botHeartsEl.appendChild(botHeart);
+    }
+
+    // Cipsleri güncelle
+    const gameBoard = document.querySelector('.game-board');
+    gameBoard.innerHTML = '';
+
+    gameState.chips.forEach((chip, index) => {
+        const chipEl = document.createElement('div');
+        chipEl.className = 'chip';
+        chipEl.onclick = () => selectChip(index);
+
+        if(chip.opened) {
+            chipEl.classList.add('opened');
+            if(chip.isBomb) {
+                chipEl.classList.add('bomb');
+                chipEl.textContent = '💣';
+            } else {
+                chipEl.classList.add('safe');
+                chipEl.textContent = '💋';
+            }
+        } else {
+            chipEl.textContent = '🍟';
+        }
+
+        gameBoard.appendChild(chipEl);
+    });
+}
+
+function selectChip(index) {
+    if(gameState.gameOver || gameState.chips[index].opened) return;
+
+    gameState.chips[index].opened = true;
+    const isBomb = gameState.chips[index].isBomb;
+
+    if(isBomb) {
+        if(gameState.currentTurn === 'player') {
+            gameState.playerHearts--;
+            updateGameMessage('Mami\'ye 1 öpücük borçlusun! 😘');
+            // Telegram mesajı gönder
+            sendTelegramMessage(`Sevgilim yandı! Skor: ${gameState.playerHearts}-${gameState.botHearts}`);
+        } else {
+            gameState.botHearts--;
+            updateGameMessage('Mami yandı, sana borçlu! 💋');
+            // Telegram mesajı gönder
+            sendTelegramMessage(`Ben yandım! Skor: ${gameState.playerHearts}-${gameState.botHearts}`);
+        }
+    } else {
+        gameState.currentTurn = gameState.currentTurn === 'player' ? 'bot' : 'player';
+        updateGameMessage(gameState.currentTurn === 'player' ? 'Sıra sende! 💋' : 'Mami düşünüyor... 🤔');
+
+        if(gameState.currentTurn === 'bot') {
+            setTimeout(botTurn, 1500);
+        }
+    }
+
+    updateGameUI();
+    checkGameOver();
+}
+
+function botTurn() {
+    if(gameState.gameOver) return;
+
+    // Bot rastgele kapalı cips seçer
+    const closedChips = gameState.chips.map((chip, index) => chip.opened ? -1 : index).filter(i => i !== -1);
+    if(closedChips.length === 0) return;
+
+    const randomIndex = closedChips[Math.floor(Math.random() * closedChips.length)];
+    selectChip(randomIndex);
+}
+
+function updateGameMessage(message) {
+    document.querySelector('.game-message').textContent = message;
+}
+
+function checkGameOver() {
+    if(gameState.playerHearts <= 0 || gameState.botHearts <= 0) {
+        gameState.gameOver = true;
+        const winner = gameState.playerHearts > gameState.botHearts ? 'Sen kazandın!' : 'Mami kazandı!';
+        updateGameMessage(`${winner} 🎉`);
+
+        // Oyun bitince yeniden başlat butonu göster
+        const gameBoard = document.querySelector('.game-board');
+        const restartBtn = document.createElement('button');
+        restartBtn.className = 'game-btn';
+        restartBtn.textContent = 'Tekrar Oyna';
+        restartBtn.onclick = () => initGame();
+        gameBoard.appendChild(restartBtn);
+    }
+}
+
+function sendTelegramMessage(message) {
+    // Mevcut Telegram fonksiyonunu çağır
+    const msgInput = document.getElementById('messageText');
+    const originalValue = msgInput.value;
+    msgInput.value = message;
+
+    // Mevcut gönderim fonksiyonunu tetikle
+    document.getElementById('sendMsg').click();
+
+    // Gecikmeli olarak orijinal değeri geri yükle
+    setTimeout(() => {
+        msgInput.value = originalValue;
+    }, 1000);
 }
 
 /* --- MÜZİK & SAYAÇ --- */
 musicToggle.addEventListener('change', function() { this.checked ? music.play().catch(()=>{}) : music.pause(); });
+
+// Ses seviyesi ayarı
+const volumeSlider = document.getElementById('volume-slider');
+const savedVolume = localStorage.getItem('musicVolume') || 0.5;
+music.volume = savedVolume;
+volumeSlider.value = savedVolume;
+
+volumeSlider.addEventListener('input', function() {
+    music.volume = this.value;
+    localStorage.setItem('musicVolume', this.value);
+});
 
 function updateCounter() {
     const now = new Date();
