@@ -38,8 +38,17 @@
             height: 56.25vw; 
             min-height: 100vh;
             min-width: 177.77vh; 
+            /* Masaüstünde tam ortalar */
             transform: translate(-50%, -50%) scale(1.3); 
             pointer-events: none;
+        }
+
+        /* Mobil ekranlarda videonun odak noktasını şövalyeye kaydırır */
+        @media (max-width: 768px) {
+            .video-wrapper iframe {
+                /* -50% yerine -25% yaparak videoyu sağa kaydırıp soldaki şövalyeyi kadraja alıyoruz */
+                transform: translate(-25%, -50%) scale(1.3); 
+            }
         }
 
         .overlay {
@@ -52,7 +61,6 @@
             z-index: 0;
         }
 
-        /* Eski siteye gönderme: Sol üstteki silik ve soğuk anı */
         .eski-ani {
             position: absolute;
             top: 20px;
@@ -153,7 +161,7 @@
         <h1>Prensesinden Ayrı Düşeli...</h1>
         <div id="sayac">Yükleniyor...</div>
         
-        <a href="https://wa.me/905518780853" class="whatsapp-link">Eski siteyi mi istiyorsunuz?<br>Sadece buna tıkla...</a>
+        <a href="https://wa.me/905518780853" class="whatsapp-link">Eski siteyi mi istiyorsunuz?<br>Sadece buna tıklayın...</a>
     </div>
 
     <script>
