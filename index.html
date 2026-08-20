@@ -5,18 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Süre Doldu</title>
     <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
         body {
             margin: 0;
             padding: 0;
             color: #d1d1d1;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            height: 100vh;
+            min-height: 100vh; 
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            overflow: hidden;
             background-color: #050505; 
+            overflow: hidden; 
         }
 
         .video-wrapper {
@@ -38,15 +43,12 @@
             height: 56.25vw; 
             min-height: 100vh;
             min-width: 177.77vh; 
-            /* Masaüstünde tam ortalar */
             transform: translate(-50%, -50%) scale(1.3); 
             pointer-events: none;
         }
 
-        /* Mobil ekranlarda videonun odak noktasını şövalyeye kaydırır */
         @media (max-width: 768px) {
             .video-wrapper iframe {
-                /* -50% yerine -25% yaparak videoyu sağa kaydırıp soldaki şövalyeyi kadraja alıyoruz */
                 transform: translate(-25%, -50%) scale(1.3); 
             }
         }
@@ -82,6 +84,31 @@
             display: block;
         }
 
+        #sayac-kapsayici {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .eski-baslik {
+            font-size: 0.75rem;
+            color: #777;
+            text-decoration: line-through;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+        
+        #sayac {
+            font-size: 1.1rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #ffffff;
+            line-height: 1.3;
+        }
+
         .container {
             position: relative;
             z-index: 1; 
@@ -93,14 +120,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
             width: 85%;
             max-width: 380px; 
-        }
-
-        .eski-baslik {
-            font-size: 0.9rem;
-            color: #777;
-            text-decoration: line-through;
-            margin-bottom: 5px;
-            letter-spacing: 1px;
+            transition: opacity 0.5s ease;
         }
         
         h1 {
@@ -112,34 +132,132 @@
             margin-top: 0;
         }
         
-        #sayac {
-            font-size: 1.5rem;
-            font-weight: bold;
-            letter-spacing: 1px;
-            margin-bottom: 30px;
-            color: #ffffff;
-            line-height: 1.4;
-        }
-        
-        .whatsapp-link {
-            color: #888;
-            text-decoration: none;
+        .duygusal-yazi {
             font-size: 0.85rem;
-            transition: 0.3s;
-            display: block;
-            margin-top: 15px;
-            padding: 12px 10px;
+            color: #888;
+            margin-top: 20px;
+            margin-bottom: 25px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .butonlar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-secim {
+            padding: 10px;
+            background: rgba(255,255,255,0.03);
+            color: #ccc;
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 6px;
-            background: rgba(255,255,255,0.03); 
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: inherit;
+            font-size: 0.9rem;
+            text-decoration: none; 
+        }
+
+        .btn-secim:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .btn-karanlik {
+            border-color: rgba(255, 76, 76, 0.3);
+            color: #a55;
+        }
+
+        .btn-karanlik:hover {
+            background: rgba(255, 76, 76, 0.1);
+            color: #ff4c4c;
+        }
+
+        .gizli {
+            display: none !important;
+        }
+
+        #okuma-ekrani {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer; 
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #metin-alani {
+            font-size: 1.2rem;
+            color: #fff;
+            line-height: 1.6;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            max-width: 600px;
+            transition: opacity 0.5s ease;
+        }
+
+        .dokun-uyari {
+            position: absolute;
+            bottom: 40px;
+            font-size: 0.75rem;
+            color: #666;
+            letter-spacing: 1px;
+            animation: pulse 2s infinite;
+        }
+
+        #final-ekrani {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 400px;
+            animation: fadeIn 1s ease-in;
+            z-index: 10;
+        }
+
+        .btn-whatsapp-dev {
+            display: block;
+            margin-bottom: 15px;
+            padding: 20px;
+            background: rgba(255, 76, 76, 0.08);
+            border: 1px solid #ff4c4c;
+            color: #fff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 76, 76, 0.1);
+        }
+
+        .btn-whatsapp-dev:hover {
+            background: rgba(255, 76, 76, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
         }
         
-        .whatsapp-link:hover {
-            color: #fff;
-            background: rgba(255,255,255,0.08);
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
+
+    <audio id="bg-muzik" loop>
+        <source src="muzik.mp3" type="audio/mpeg">
+    </audio>
 
     <div class="video-wrapper">
         <iframe src="https://www.youtube.com/embed/qk_aNQJG_g8?autoplay=1&mute=1&loop=1&playlist=qk_aNQJG_g8&controls=0&showinfo=0&autohide=1&rel=0&modestbranding=1" 
@@ -156,12 +274,36 @@
         sen gittiğinden beri...
     </div>
 
-    <div class="container">
+    <div id="sayac-kapsayici">
         <div class="eski-baslik">sonsuzluğa akan sayaç...</div>
-        <h1>Prensesinden Ayrı Düşeli...</h1>
         <div id="sayac">Yükleniyor...</div>
+    </div>
+
+    <div class="container" id="baslangic-ekrani">
+        <h1>Prensesinden Ayrı Düşeli...</h1>
         
-        <a href="https://wa.me/905518780853" class="whatsapp-link">Eski siteyi mi istiyorsunuz?<br>Sadece buna tıklayın...</a>
+        <p class="duygusal-yazi">Sadece içimi döktüm...<br>İstersen bakmayabilirsin, bu sana olan sevgimi zerre azaltmayacak.</p>
+        
+        <div class="butonlar">
+            <button id="btn-ileri" class="btn-secim">Okumak İstiyorum</button>
+            <button id="btn-cik" class="btn-secim btn-karanlik">Sadece Çık</button>
+        </div>
+    </div>
+
+    <div id="okuma-ekrani" class="gizli">
+        <p id="metin-alani"></p>
+        
+        <div id="final-ekrani" class="gizli">
+            <a href="https://wa.me/905518780853" class="btn-whatsapp-dev">
+                Bana istediğini yaz...
+            </a>
+            
+            <button id="btn-final-cik" class="btn-secim btn-karanlik" style="width: 100%;">
+                Şu an hazır değilim
+            </button>
+        </div>
+
+        <div class="dokun-uyari">(Devam etmek için ekrana dokun)</div>
     </div>
 
     <script>
@@ -172,7 +314,7 @@
             const fark = suAn - ayrilikTarihi;
 
             if (fark < 0) {
-                document.getElementById("sayac").innerHTML = "0 Gün<br><span style='font-size: 1.2rem; color: #bbb;'>0 Saat 0 Dk 0 Sn</span>";
+                document.getElementById("sayac").innerHTML = "0 Gün<br><span style='font-size: 0.9rem; color: #bbb;'>0 Saat 0 Dk 0 Sn</span>";
                 return;
             }
 
@@ -181,9 +323,146 @@
             const dakika = Math.floor((fark % (1000 * 60 * 60)) / (1000 * 60));
             const saniye = Math.floor((fark % (1000 * 60)) / 1000);
 
-            document.getElementById("sayac").innerHTML = gun + " Gün<br><span style='font-size: 1.2rem; color: #bbb;'>" + saat + " Saat " + dakika + " Dk " + saniye + " Sn</span>";
-
+            document.getElementById("sayac").innerHTML = gun + " Gün<br><span style='font-size: 0.9rem; color: #bbb;'>" + saat + " Saat " + dakika + " Dk " + saniye + " Sn</span>";
         }, 1000);
+
+        const mesajlar = [
+            "Ne diyeceğimi bilmiyorum ne yapabilceğimide bilmiyorum",
+            "Seni dünyadaki evrendeki herkesten herseyden mutlu ediceğime söz vermiştim",
+            "Şuan paramparça ettim kırdım ne etsen ne desen artık dönmesen bile haklısın hak veriyorumda",
+            "Kendimden tiksindim keske bi yol bulup seni tekrar mutlu edebilsem",
+            "1 kere şans verdin fakat ondada beceremedim",
+            "Burda ne yazsam ne etsemde düzeltemem gibi",
+            "Ama düzeltemeyeciğimi bilsemde düzeltmek için herşeyi yapardim",
+            "halada yapmak isterim",
+            "Tartışsak bile keşke yüzyüze olabilseydik inan bana bunlarin hicbiri büyümezdi",
+            "dediklerime şuan bile inanmiyor olabilirsin bunada hak veririm ama şunu bilki güven kazanmak için herşeyi yapmıştım",
+            "her haraketimi söylüyordum hatta o gün o yalani soylememin nedeni bile çok kötü bişi olmamasi içindi",
+            "hiçbir şekilde haklı oldugumu söylemiyorum",
+            "ama emin ol senden birşey gizlemek için değil seni kaybetmemek için yapmıştım",
+            "hak vermeyebilirsin bende vermezdim ama işte olan olmuş hala geceleri ya yapmasaydim diye düşünüyorum",
+            "bugun 2 kere konuşma başlatırım belki diye yazmayi denedim",
+            "o kadar korkuyordumki ya engellersen yada daha bunalırsan diye",
+            "cesaret edemiyordum yazmaya belki yarin sadece bu sitenin linkini atarım",
+            "eğer yinede güvenmezsen ve kendini daha zora sokacağını düşünürsen sadece uzaktan sevmeye devam ederim bu duruma alınmam ama üzülmiyeceğime söz veremem.",
+            "sen bana hayat verdin ben senin hayatini bezdirdim ozur dilerim",
+            "şu ana kadar özür dilememiştim ama her satirimin niyetini özur olarak say",
+            "kabul etmeyecek olursan bile",
+            "senin gittiğin gün instayi telefonuma indirdim",
+            "sadece en azından konuşamasam bile notlarından ruh halini anlarim diye",
+            "şifremi değişmek zorunda kaldim girerken ama emin ol girebilsem şifremi değişmeye yeltenmezdik bile",
+            "ben hala bilgisayarima adinla giriyorum atölyeme gidiyorum baş harfin oyun giriyorum baş harfin",
+            "hiçbirine dokunmaya kıyamiyorum kiyamicamda",
+            "eğer affetmezsen ve beni sonsuzluğa terk edersen ne yapacagim onuda bilmiyorum ben ne senin hatırani tasiyan birseyi birakabilirim",
+            "ne sesini",
+            "ne o güzel gözlerini",
+            "ne hayatıma çiçekler açan gülüşünü",
+            "ne gözlerinin olduğu arkaplanlarımı",
+            "ne o bankta birbirimize bile çaktıŕmadan el ele tutuşmamızı",
+            "ne kokunu",
+            "ne kızışını",
+            "ne o ikna eden bakışını",
+            "şefkatini",
+            "merhametini",
+            "melek gibi saflığını",
+            "gece tutturduğun dileği",
+            "kurdurduğun hayalleri",
+            "güldürmelerini",
+            "su birikintisine ziplayincaki yüz ifadeni",
+            "sen sevmesen begenmesen bile zerresine kadar aşık olduğum o güzel yüzünü",
+            "ayy yazisini",
+            "fotograflarını",
+            "düşünceli olmani",
+            "bunlari sayarken bile neden benim gibi birinin seni hak etmedigini daha iyilerine daha mükemmellerine layık olduğunu gördüm",
+            "kendimi senin seveceğin mükemmel bi hale getirmek için çabalayacgim",
+            "buraya kadar okuduysan bile teşekkür ederim",
+            "seni çok seviyorum",
+            "lütfen göz yaşından 1 damla bile dökülmesin kurban olduğum",
+            "birbirimize ihanet etmedikçe herşeyi toparlayabilceğimize inanıyorum",
+            "lütfen geçenki seferi hatırla her ne kadar güvenini kazanamasamda geri toparlamaya calisiyodum toparliyodum",
+            "birbirimizden ayrı kaldık uzaklaştık yine benim hatalarım yüzünden",
+            "ama emin ol eğer yüzyüzeyken aynı şeyler olsa ben gönlünü alıp toparlamak için herşeyi yapardım kırgın kalmazdin",
+            "fakat işte birbirimizden uzak zor oluyo fakat istedigi kadar şey olsun pürüz olsun ben varım olmayada devam edicem",
+            "Ailenin bilmemesi saklaman senin için çok zor biliyorum",
+            "eğer yeniden benle beraber olmak bu engelleri aşmak istersen aşabilcegimizi biliyorum",
+            "sen beni sevdikten ben seni sevdikten sonra bizi ne ayırabilirki",
+            "ailen telefonda mesajlaşırken zorlaniyomusun bi süre yazmazsin veya sadece sabah gece mesaj yazsan bile razıyım",
+            "geceleri uyuyamiyorum iyi geceler mesajın olmadan artık",
+            "sabahları uyanınca günaydın yazmak istiyorum",
+            "birşey oluyo anlatmak istiyorum",
+            "eğer dinlemek iste artık herseyi yazarak bile anlatirim",
+            "yatmamı istediğin an yatarım inat etmem",
+            "yazmasan bile okeyim",
+            "yeterki benim ol beni sev ben herşeye razıyım",
+            "bu sözlerime güvenmesen bile gerçekten dediklerimi yapmaya çalışıcam söz veriyorum",
+            "en son sana sözler verdiğimde mükemmel olmaya çalışcağim diye söz vermistim şimdi düşünmek için çok gecem oldu",
+            "senin için mükemmel olmaya kendi tabirimle çalışmicam senin beni mükemmel olarak görmen kusurlu olsa bile kusurunu düzeltecek biri olarak gormen için çabalicam",
+            "herşeyde dürüst olucam mükemmel olmaya calisip hatami gizlemeye çalismicam",
+            "belki buraya kadarda dinlemişsindir teşekkür ederim",
+            "kendini ne yaparsan yap unutturamazsın bu saatten sonra ya sen ya hiç",
+            "tilkin bile yaptin beni",
+            "hani tilkiler hayatinda 1 eşe bağlanır ya",
+            "bana böyle bi onuru verdiğin için teşekkür ederim",
+            "sonsuza kadar bağlı kalacağım her ne olsa olsun",
+            "ben suana kadar hicbir kimseye ne bu kadar baglandjm ne hicbir kişiden bu kadar sevgi görmedim nede besledim hiçbirşeyime inanma ama lütfen bunu bil",
+            "hani sahibem olucaktin hani adam edicektin yalanıda söküp atsak yeter diyodun",
+            "gel dilimi kopar parçala keşke öyle yapsaydinda bu 2 şeye sebep olmasaydim",
+            "seni çok seviyorum",
+            "daha fazla yazmak isterdim ama boğmak istemiyorum seni",
+            "değersiz hissettirmişsemde çok özür dilerim ama",
+            "izin verirsen bana gerj gelirsen seni herşeyden değerli olduğunu geri hissettirmek isterim",
+            "bu siteyi sana nasil atacağımı bilmiyorum",
+            "umarim atabilmisimdir",
+            "Benden yana kararın ne olursa olsun seni cevap vermeye zorlamak istemiyorum",
+            "Affetmek zorunda değilsin.",
+            "Konuşmak zorunda değilsin.",
+            "Sadece bilmeni istediğim şeyleri söylemek istedim."
+        ];
+        
+        let aktifMesajIndex = 0;
+        const metinAlani = document.getElementById('metin-alani');
+        const baslangicEkrani = document.getElementById('baslangic-ekrani');
+        const okumaEkrani = document.getElementById('okuma-ekrani');
+        const finalEkrani = document.getElementById('final-ekrani');
+
+        document.getElementById('btn-ileri').addEventListener('click', function() {
+            baslangicEkrani.classList.add('gizli'); 
+            okumaEkrani.classList.remove('gizli'); 
+            metinAlani.innerHTML = mesajlar[aktifMesajIndex]; 
+            
+            let muzik = document.getElementById('bg-muzik');
+            if (muzik) {
+                muzik.volume = 0.02; 
+                muzik.play().catch(e => console.log("Otomatik oynatma engellendi"));
+            }
+        });
+
+        // İlk ekranda "Sadece Çık" derse
+        document.getElementById('btn-cik').addEventListener('click', function() {
+            document.body.innerHTML = '<div style="height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; background-color:#000; color:#444; font-size:1rem; font-style:italic;"><span style="margin-bottom:10px;">Hoşça kal...</span><span style="font-size:0.7rem;">(Sekmeyi kapatabilirsin)</span></div>';
+        });
+
+        // En son ekranda "Şu an hazır değilim" derse
+        document.getElementById('btn-final-cik').addEventListener('click', function() {
+            document.body.innerHTML = '<div style="height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; background-color:#000; color:#ddd; font-size:1.1rem; font-style:italic; text-align:center;"><span style="margin-bottom:15px;">Yine de her şey için teşekkür ederim...</span><span style="font-size:0.8rem; color:#666;">(Sekmeyi kapatabilirsin)</span></div>';
+        });
+
+        okumaEkrani.addEventListener('click', function(e) {
+            if (e.target.closest('#final-ekrani')) return;
+
+            if (aktifMesajIndex < mesajlar.length - 1) {
+                aktifMesajIndex++;
+                
+                metinAlani.style.opacity = 0;
+                setTimeout(() => {
+                    metinAlani.innerHTML = mesajlar[aktifMesajIndex];
+                    metinAlani.style.opacity = 1;
+                }, 300); 
+            } else {
+                document.querySelector('.dokun-uyari').style.display = 'none';
+                finalEkrani.classList.remove('gizli');
+            }
+        });
     </script>
 
 </body>
